@@ -30,12 +30,12 @@ void MainMenuState::handle_input()
 
     while (window->pollEvent(event))
     {
-        if (sf::Event::Closed == event.type || input->is_sprite_clicked(this->quit_button, sf::Mouse::Left, *window))
+        if (sf::Event::Closed == event.type || input.is_sprite_clicked(this->quit_button, sf::Mouse::Left, *window))
         {
             window->close();
         }
 
-        if (input->is_sprite_clicked(this->play_button, sf::Mouse::Left, *window))
+        if (input.is_sprite_clicked(this->play_button, sf::Mouse::Left, *window))
         {
             // Switch to game state
             add_state<GameState>(true);

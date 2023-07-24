@@ -35,13 +35,13 @@ void PauseState::handle_input()
 			window->close();
 		}
 
-		if (input->is_sprite_clicked(this->resume_button, sf::Mouse::Left, *window))
+		if (input.is_sprite_clicked(this->resume_button, sf::Mouse::Left, *window))
 		{
 			// Resume Game By Popping Of The Current State (Pause State)
 			remove_state();
 		}
 
-		if (input->is_sprite_clicked(this->home_button, sf::Mouse::Left, *window))
+		if (input.is_sprite_clicked(this->home_button, sf::Mouse::Left, *window))
 		{
 			// Remove The Pause State Off The Stack
 			remove_state();

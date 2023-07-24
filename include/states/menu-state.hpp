@@ -14,10 +14,13 @@
 #include "config-handler.hpp"
 #include "definitions.hpp"
 
+#include "button.hpp"
+
 class MainMenuState : public pte::GenericState
 {
 private:
     Config config_defs;
+    InputManager input;
 
     sf::Sprite play_button;
     sf::Sprite quit_button;

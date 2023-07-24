@@ -5,6 +5,13 @@ void SplashState::init()
     // load config
     config_defs.load("data/config.txt");
 
+    // set window scale
+    sf::Vector2u w_size;
+    w_size.x = SCREEN_WIDTH * stoi(config_defs.get("SCREEN_SCALE"));
+    w_size.y = SCREEN_HEIGHT * stoi(config_defs.get("SCREEN_SCALE"));
+    window->setSize(w_size);
+
+    // set splash logo
     assets->load_texture("splash_scene_background", config_defs.get("SPLASH_SCENE_BACKGROUND_FILEPATH"));
 
     background.setTexture(assets->get_texture("splash_scene_background"));

@@ -12,12 +12,14 @@
 #include <prato-engine/generic-state.hpp>
 #include "states/menu-state.hpp"
 #include "config-handler.hpp"
+#include "button.hpp"
 #include "definitions.hpp"
 
 class PauseState : public pte::GenericState
 {
 private:
     Config config_defs;
+    InputManager input;
 
     sf::Sprite resume_button;
     sf::Sprite home_button;

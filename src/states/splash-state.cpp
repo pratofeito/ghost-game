@@ -2,7 +2,10 @@
 
 void SplashState::init()
 {
-    assets->load_texture("splash_scene_background", SPLASH_SCENE_BACKGROUND_FILEPATH);
+    // load config
+    config_defs.load("data/config.txt");
+
+    assets->load_texture("splash_scene_background", config_defs.get("SPLASH_SCENE_BACKGROUND_FILEPATH"));
 
     background.setTexture(assets->get_texture("splash_scene_background"));
     background.setPosition(sf::Vector2f((SCREEN_WIDTH / 2) - (background.getLocalBounds().width / 2), (SCREEN_HEIGHT / 2) - (background.getLocalBounds().height / 2)));

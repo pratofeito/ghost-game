@@ -2,8 +2,11 @@
 
 void PauseState::init()
 {
+	// load config
+    config_defs.load("data/config.txt");
+
 	// setup title
-	assets->load_font("default_font", DEFAULT_FONT_PATH);
+	assets->load_font("default_font", config_defs.get("DEFAULT_FONT_PATH"));
 	this->title.setFont(assets->get_font("default_font"));
 	this->title.setString("PAUSE MENU");
 	this->title.setCharacterSize(55);

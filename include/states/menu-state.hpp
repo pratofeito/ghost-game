@@ -11,11 +11,14 @@
 
 #include <prato-engine/generic-state.hpp>
 #include "states/game-state.hpp"
+#include "config-handler.hpp"
 #include "definitions.hpp"
 
 class MainMenuState : public pte::GenericState
 {
 private:
+    Config config_defs;
+
     sf::Sprite play_button;
     sf::Sprite quit_button;
     sf::Text title;

@@ -2,11 +2,19 @@
 
 void GameState::init()
 {
+	read_csv();
     window->setFramerateLimit(60);
 
     assets->load_texture("pause_button", PAUSE_BUTTON);
     pause_button.setTexture(assets->get_texture("pause_button"));
     pause_button.setPosition(window->getSize().x - pause_button.getLocalBounds().width - 10, pause_button.getPosition().y + 10);
+
+	assets->load_texture("tiles", TILES_PATH);
+	for(int i=0;i<NO_TILES;i++){
+		tiles[i].setTexture(assets->get_texture("tiles"));
+		tiles[i].setTextureRect(sf::IntRect(55*i, 0, 55, 32)); // Assume que os tiles estao dispostos horizontalmente na textura
+	}
+//	std::printf("abobrinha\n");
 
     // view
     default_view = window->getView();
@@ -97,10 +105,8 @@ void GameState::handle_input()
 
 void GameState::update(float delta_time)
 {
-    // update player position
     sf::Vector2i center_update = update_movement(delta_time);
 
-    // set player to center and update view
     player.setPosition(center_update.x - (TILE_SIZE / 2), center_update.y - (TILE_SIZE / 2));
     view.setCenter(center_update.x, center_update.y);
 }
@@ -112,15 +118,25 @@ void GameState::draw(float delta_time)
     // view
     window->setView(view);
 
-    // guidelines
-    for (int i = 1; i < WIDTH; i++)
-    {
-        window->draw(guide_x[i]);
-    }
-    for (int i = 1; i < HEIGHT; i++)
-    {
-        window->draw(guide_y[i]);
-    }
+/*	// guidelines
+	for (int i = 1; i < WIDTH; i++)
+	{
+		window->draw(guide_x[i]);
+	}
+	for (int i = 1; i < HEIGHT; i++)
+	{
+		window->draw(guide_y[i]);
+	}
+*/
+	// tiles
+	for(int i=0;i<column;i++){
+		for(int j=0;j<line;j++){
+			int type = map[i*line+j];
+			if(type==-1) continue;
+			tiles[type].setPosition(tile_position(i, j));
+			window->draw(tiles[type]);
+		}
+	}
 
     // player
     window->draw(player);
@@ -234,3 +250,50 @@ int GameState::update_control()
     else
         return 0;
 }
+
+void GameState::read_csv(){
+
+//	std::printf("abobora madura\n");
+	std::FILE* f;
+	if(!(f = std::fopen(MAP_PATH, "r"))){
+		std::printf("error opening file " MAP_PATH "\n");
+		std::exit(1);
+	}
+	
+	int count=0;
+	if(std::fscanf(f, "%d", &map[count++])!=1){
+		std::printf("bad map input\n");
+		std::exit(1);
+	}
+	while(std::fscanf(f, ",%d", &map[count])==1){
+		count++;
+	}
+	line = count;
+	column++;
+	while(std::fscanf(f, "%d", &map[count])==1){
+		count++;
+		for(int i=0;i<line-1;i++){
+			if(std::fscanf(f, ",%d", &map[count++])!=1){
+				std::printf("bad map input\n");
+				std::exit(1);
+			}
+		}
+		column++;
+	}
+	
+	for(int i=0;i<line*column;i++){
+		if(map[i]>=NO_TILES || map[i]<-1){
+			std::printf("invalid tile %d\n", map[i*line+column]);
+			std::exit(1);
+		}
+	}
+}
+
+sf::Vector2f GameState::tile_position(int i, int j){
+	float jj = (float) j;
+	float ii = (float) i;
+	sf::Vector2f v(TILE_W/2*jj-TILE_W/2*ii,TILE_H/2*jj+TILE_H/2*ii);
+	return v;
+}
+
+

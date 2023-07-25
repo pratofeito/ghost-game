@@ -26,6 +26,8 @@ private:
     sf::Sprite quit_button;
     sf::Text title;
 
+    Button *test_button;
+
 public:
     using GenericState::GenericState;
 

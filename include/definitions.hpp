@@ -30,4 +30,7 @@
 #define PAUSE_MENU_RESUME_BUTTON "resources/pause-menu/resume_btn.png"
 #define PAUSE_MENU_HOME_BUTTON "resources/pause-menu/home_btn.png"
 
+#define DEFAULT_FONT "resources/fonts/oswald.ttf"
+#define HANDWRITING_FONT "resources/fonts/covered_by_your_grace.ttf"
+
 #endif

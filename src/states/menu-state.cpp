@@ -22,6 +22,19 @@ void MainMenuState::init()
     assets->load_texture("quit_button", MAIN_MENU_QUIT_BUTTON);
     this->quit_button.setTexture(assets->get_texture("quit_button"));
     this->quit_button.setPosition((SCREEN_WIDTH / 2) - (this->quit_button.getGlobalBounds().width / 2), (SCREEN_HEIGHT / 2) + this->quit_button.getGlobalBounds().height * 2.2);
+
+    // load fonts
+    assets->load_font("d_font", DEFAULT_FONT);
+    assets->get_font("d_font").setSmooth(false);
+
+    // new button
+    test_button = new Button(*window);
+    test_button->set_size(173, 43);
+    test_button->set_texture("resources/main-menu/btn_texture.png");
+    test_button->set_hover_texture("resources/main-menu/btn_hover_texture.png");
+    test_button->set_pressed_texture("resources/main-menu/btn_pressed_texture.png");
+    test_button->set_position(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
+    test_button->set_text("PLAY", assets->get_font("d_font"), 20, sf::Text::Bold, sf::Color::White);
 }
 
 void MainMenuState::handle_input()
@@ -30,21 +43,22 @@ void MainMenuState::handle_input()
 
     while (window->pollEvent(event))
     {
-        if (sf::Event::Closed == event.type || input.is_sprite_clicked(this->quit_button, sf::Mouse::Left, *window))
+        if (sf::Event::Closed == event.type)
         {
             window->close();
         }
 
-        if (input.is_sprite_clicked(this->play_button, sf::Mouse::Left, *window))
-        {
-            // Switch to game state
-            add_state<GameState>(true);
-        }
+        // if (input.is_sprite_clicked(this->play_button, sf::Mouse::Left, *window))
+        // {
+        //     // Switch to game state
+        //     add_state<GameState>(true);
+        // }
     }
 }
 
 void MainMenuState::update(float delta_time)
 {
+    test_button->update();
 }
 
 void MainMenuState::draw(float delta_time)
@@ -52,8 +66,10 @@ void MainMenuState::draw(float delta_time)
     window->clear(sf::Color(65, 11, 95));
 
     window->draw(this->title);
-    window->draw(this->play_button);
-    window->draw(this->quit_button);
+    // window->draw(this->play_button);
+    // window->draw(this->quit_button);
+
+    test_button->draw();
 
     window->display();
 }

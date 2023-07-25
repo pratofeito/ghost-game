@@ -36,20 +36,6 @@ void GameState::init()
     pos_end.x = player_pos.x * TILE_SIZE;
     pos_end.y = player_pos.y * TILE_SIZE;
 
-    // init guidelines
-    for (int i = 0; i < WIDTH; i++)
-    {
-        guide_x[i].setSize(sf::Vector2f(1, SCREEN_HEIGHT));
-        guide_x[i].setFillColor(sf::Color::Black);
-        guide_x[i].setPosition((i * TILE_SIZE), 0);
-    }
-
-    for (int i = 0; i < HEIGHT; i++)
-    {
-        guide_y[i].setSize(sf::Vector2f(SCREEN_WIDTH, 1));
-        guide_y[i].setFillColor(sf::Color::Black);
-        guide_y[i].setPosition(0, (i * TILE_SIZE));
-    }
 }
 
 void GameState::handle_input()
@@ -118,16 +104,6 @@ void GameState::draw(float delta_time)
     // view
     window->setView(view);
 
-/*	// guidelines
-	for (int i = 1; i < WIDTH; i++)
-	{
-		window->draw(guide_x[i]);
-	}
-	for (int i = 1; i < HEIGHT; i++)
-	{
-		window->draw(guide_y[i]);
-	}
-*/
 	// tiles
 	for(int i=0;i<column;i++){
 		for(int j=0;j<line;j++){

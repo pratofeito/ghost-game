@@ -16,10 +16,10 @@
 #include "definitions.hpp"
 
 
-#define TILE_SIZE 32
+#define TILE_SIZE 10
 #define WIDTH SCREEN_WIDTH / TILE_SIZE
 #define HEIGHT SCREEN_HEIGHT / TILE_SIZE
-#define SPEED 0.6
+#define SPEED 0.1
 
 class GameState : public pte::GenericState
 {
@@ -48,9 +48,6 @@ private:
     sf::Vector2i pos_end;
     sf::Vector2i center;
 
-    // guidelines
-    sf::RectangleShape guide_x[WIDTH];
-    sf::RectangleShape guide_y[HEIGHT];
     
     // map
     int map[10000];

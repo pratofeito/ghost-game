@@ -16,6 +16,8 @@
 
 #include "button.hpp"
 
+#define CLICK_DELAY 0.3
+
 class MainMenuState : public pte::GenericState
 {
 private:
@@ -32,7 +34,7 @@ private:
     sf::Text label_checkbox;
     sf::Text title;
 
-    bool last_selected;
+    float time_since_last_click;
 
 public:
     using GenericState::GenericState;

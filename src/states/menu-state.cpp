@@ -77,6 +77,9 @@ void MainMenuState::init()
         checkbox_1x->selected = false;
         checkbox_2x->selected = true;
     }
+
+    // reset mouse click delay  
+    time_since_last_click = 0;
 }
 
 void MainMenuState::handle_input()
@@ -92,11 +95,20 @@ void MainMenuState::handle_input()
             window->close();
         }
 
+        // check button delay
+
+        if (time_since_last_click < CLICK_DELAY)
+        {
+            break;
+        }
+
         if (play_button->is_pressed())
         {
             // Switch to game state
             add_state<GameState>(true);
         }
+
+        time_since_last_click = 0;
     }
 }
 
@@ -141,6 +153,7 @@ void MainMenuState::update(float delta_time)
     checkbox_1x->update(delta_time);
     checkbox_2x->update(delta_time);
 
+    time_since_last_click += delta_time;
 }
 
 void MainMenuState::draw(float delta_time)

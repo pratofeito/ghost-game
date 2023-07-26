@@ -27,11 +27,6 @@ void GameState::init()
     player_pos.y = 10;
     moving = false;
     moving_elapsed_time = 0;
-    
-    for(int i=0;i<6;i++){
-    	dot[i].setSize(sf::Vector2f(2.0f, 2.0f));
-    	dot[i].setFillColor(sf::Color(i*50, i*50, 0));
-	}
 
     // movement
     center.x = (player_pos.x * PLAYER_SIZE_X) + (PLAYER_SIZE_X / 2);
@@ -137,7 +132,10 @@ void GameState::move_adjacent_tile(int x, int y)
     if (!moving)
     {
         sf::Vector2i pos_after_move = sf::Vector2i(center.x + (x * PLAYER_SIZE_X), center.y + (y * PLAYER_SIZE_Y));
+
         moving = true;
+        this->pos_start = center;
+        this->pos_end = pos_after_move;
         moving_elapsed_time = 0;
     }
 }
@@ -149,7 +147,11 @@ sf::Vector2i GameState::update_movement(float delta_time)
         return center;
     }
 
+    sf::Vector2i transition_pos = center;
     moving_elapsed_time += delta_time;
+
+    transition_pos.x += (moving_elapsed_time * (pos_end.x - pos_start.x)) / SPEED;
+    transition_pos.y += (moving_elapsed_time * (pos_end.y - pos_start.y)) / SPEED;
 
     if (moving_elapsed_time >= SPEED)
     {
@@ -160,7 +162,6 @@ sf::Vector2i GameState::update_movement(float delta_time)
 
     return transition_pos;
 }
-
 // ------------------- stack -------------------
 
 void GameState::push_stack(int input)

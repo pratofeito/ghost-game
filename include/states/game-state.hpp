@@ -34,10 +34,15 @@ private:
 
     // player
     sf::RectangleShape player;
+    sf::Vector2i player_pos;
+    sf::Vector2i new_player_pos;
 
     // movement
     bool moving;
     float moving_elapsed_time;
+    sf::Vector2i pos_start;
+    sf::Vector2i pos_end;
+    sf::Vector2i center;
 
     
     // map

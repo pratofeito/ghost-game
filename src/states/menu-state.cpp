@@ -86,8 +86,6 @@ void MainMenuState::handle_input()
 {
     sf::Event event;
 
-    // add click delay
-
     while (window->pollEvent(event))
     {
         if (sf::Event::Closed == event.type || exit_button->is_pressed())
@@ -96,7 +94,6 @@ void MainMenuState::handle_input()
         }
 
         // check button delay
-
         if (time_since_last_click < CLICK_DELAY)
         {
             break;

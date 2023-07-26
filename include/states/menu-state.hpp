@@ -12,17 +12,15 @@
 #include <prato-engine/generic-state.hpp>
 #include "states/game-state.hpp"
 #include "config-handler.hpp"
+#include "gui.hpp"
 #include "definitions.hpp"
 
-#include "button.hpp"
-
-#define CLICK_DELAY 0.3
+#define CLICK_DELAY 0.5
 
 class MainMenuState : public pte::GenericState
 {
 private:
     Config config_defs;
-    InputManager input;
 
     Button *play_button;
     Button *credits_button;

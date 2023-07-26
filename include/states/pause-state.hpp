@@ -12,7 +12,7 @@
 #include <prato-engine/generic-state.hpp>
 #include "states/menu-state.hpp"
 #include "config-handler.hpp"
-#include "button.hpp"
+#include "gui.hpp"
 #include "definitions.hpp"
 
 class PauseState : public pte::GenericState

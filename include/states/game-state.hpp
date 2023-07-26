@@ -12,7 +12,7 @@
 #include <cmath>
 #include <prato-engine/generic-state.hpp>
 #include "states/pause-state.hpp"
-#include "button.hpp"
+#include "gui.hpp"
 #include "definitions.hpp"
 
 

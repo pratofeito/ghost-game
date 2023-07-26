@@ -1,25 +1,22 @@
 /**
  * @file game-state.hpp
  * @date 2023-01-06
- * 
- * @brief Example game state. Runs a bouncing ball demo.
- * 
+ *
+ * @brief main game state
+ *
  */
 
 #ifndef PTE_GAME_STATE_HPP
 #define PTE_GAME_STATE_HPP
 
+#include <cstdio>
 #include <cmath>
 #include <prato-engine/generic-state.hpp>
 #include "states/pause-state.hpp"
 #include "gui.hpp"
 #include "definitions.hpp"
 
-
-#define TILE_SIZE 32
-#define WIDTH SCREEN_WIDTH / TILE_SIZE
-#define HEIGHT SCREEN_HEIGHT / TILE_SIZE
-#define SPEED 0.6
+#define INTERVAL 0.1
 
 class GameState : public pte::GenericState
 {
@@ -37,6 +34,7 @@ private:
     // view
     sf::View default_view;
     sf::View view;
+    float time_interval;
 
     // player
     sf::RectangleShape player;
@@ -46,13 +44,14 @@ private:
     // movement
     bool moving;
     float moving_elapsed_time;
-    sf::Vector2i pos_start;
-    sf::Vector2i pos_end;
-    sf::Vector2i center;
+    sf::Vector2f pos_start;
+    sf::Vector2f pos_end;
+    sf::Vector2f center;
 
-    // guidelines
-    sf::RectangleShape guide_x[WIDTH];
-    sf::RectangleShape guide_y[HEIGHT];
+    // map
+    int map[10000];
+    int line = 0, column = 0;
+    sf::Sprite tiles[NO_TILES];
 
 public:
     using GenericState::GenericState;
@@ -62,9 +61,13 @@ public:
     void update(float delta_time);
     void draw(float delta_time);
 
+    // tiling methods
+    void read_csv();
+    sf::Vector2f tile_position(int i, int j);
+
     // movement methods
     void move_adjacent_tile(int x, int y);
-    sf::Vector2i update_movement(float delta_time);
+    sf::Vector2f update_movement(float delta_time);
 };
 
 #endif

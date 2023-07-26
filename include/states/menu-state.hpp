@@ -22,11 +22,17 @@ private:
     Config config_defs;
     InputManager input;
 
-    sf::Sprite play_button;
-    sf::Sprite quit_button;
+    Button *play_button;
+    Button *credits_button;
+    Button *exit_button;
+
+    Checkbox *checkbox_1x;
+    Checkbox *checkbox_2x;
+
+    sf::Text label_checkbox;
     sf::Text title;
 
-    Button *test_button;
+    bool last_selected;
 
 public:
     using GenericState::GenericState;

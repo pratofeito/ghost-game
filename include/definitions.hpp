@@ -31,6 +31,13 @@
 #define TILE_H 32.0f
 #define NO_TILES 2
 
+#define PLAYER_SIZE_X 15
+#define PLAYER_SIZE_Y 25
+
+#define WIDTH SCREEN_WIDTH / TILE_SIZE
+#define HEIGHT SCREEN_HEIGHT / TILE_SIZE
+#define SPEED (1.0f/15000.0f)
+
 // pause menu
 #define PAUSE_BACKGROUND_FILEPATH "resources/pause_bg.png"
 #define PAUSE_MENU_RESUME_BUTTON "resources/pause-menu/resume_btn.png"

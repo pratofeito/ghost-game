@@ -2,7 +2,7 @@
  * @file game-state.hpp
  * @date 2023-01-06
  * 
- * @brief Example game state. Runs a bouncing ball demo.
+ * @brief main game state
  * 
  */
 
@@ -14,7 +14,6 @@
 #include <prato-engine/generic-state.hpp>
 #include "states/pause-state.hpp"
 #include "definitions.hpp"
-
 
 
 class GameState : public pte::GenericState
@@ -47,7 +46,7 @@ public:
     void draw(float delta_time);
     
     // tiling methods
-    void read_csv();
+    void read_csv(char const*, int*);
     sf::Vector2f tile_position(int i, int j);
     
 };

@@ -2,7 +2,7 @@
 
 void GameState::init()
 {
-	read_csv();
+	read_csv(MAP_PATH, map);
     window->setFramerateLimit(60);
 
     assets->load_texture("pause_button", PAUSE_BUTTON);
@@ -133,14 +133,14 @@ void GameState::draw(float delta_time)
 		for(int j=0;j<line;j++){
 			int type = map[i*line+j];
 			if(type==-1) continue;
-			tiles[type].setPosition(tile_position(i, j));
+			tiles[type].setPosition(tile_position(i-column/2, j-column/2));
 			window->draw(tiles[type]);
 		}
 	}
 
     // player
     window->draw(player);
-
+    
     // default view
     window->setView(default_view);
 
@@ -148,29 +148,30 @@ void GameState::draw(float delta_time)
     window->display();
 }
 
-void GameState::read_csv(){
+
+void GameState::read_csv(char const* path, int* map_buf){
 
 //	std::printf("abobora madura\n");
 	std::FILE* f;
-	if(!(f = std::fopen(MAP_PATH, "r"))){
-		std::printf("error opening file " MAP_PATH "\n");
+	if(!(f = std::fopen(path, "r"))){
+		std::printf("error opening file %s\n", path);
 		std::exit(1);
 	}
 	
 	int count=0;
-	if(std::fscanf(f, "%d", &map[count++])!=1){
+	if(std::fscanf(f, "%d", &map_buf[count++])!=1){
 		std::printf("bad map input\n");
 		std::exit(1);
 	}
-	while(std::fscanf(f, ",%d", &map[count])==1){
+	while(std::fscanf(f, ",%d", &map_buf[count])==1){
 		count++;
 	}
 	line = count;
 	column++;
-	while(std::fscanf(f, "%d", &map[count])==1){
+	while(std::fscanf(f, "%d", &map_buf[count])==1){
 		count++;
 		for(int i=0;i<line-1;i++){
-			if(std::fscanf(f, ",%d", &map[count++])!=1){
+			if(std::fscanf(f, ",%d", &map_buf[count++])!=1){
 				std::printf("bad map input\n");
 				std::exit(1);
 			}
@@ -179,8 +180,9 @@ void GameState::read_csv(){
 	}
 	
 	for(int i=0;i<line*column;i++){
-		if(map[i]>=NO_TILES || map[i]<-1){
-			std::printf("invalid tile %d\n", map[i*line+column]);
+		map[i]--;
+		if(map[i]>=NO_TILES || map_buf[i]<-1){
+			std::printf("invalid tile %d\n", map_buf[i*line+column]);
 			std::exit(1);
 		}
 	}

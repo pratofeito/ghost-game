@@ -33,7 +33,7 @@
 
 #define PLAYER_SIZE_X 20
 #define PLAYER_SIZE_Y 30
-#define SPEED 0.1f
+#define SPEED 0.5f
 
 // pause menu
 #define PAUSE_BACKGROUND_FILEPATH "resources/pause_bg.png"

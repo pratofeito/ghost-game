@@ -6,7 +6,7 @@ void GameState::init()
 
     assets->load_texture("pause_button", PAUSE_BUTTON);
     pause_button.setTexture(assets->get_texture("pause_button"));
-    pause_button.setPosition(window->getSize().x - pause_button.getLocalBounds().width - 10, pause_button.getPosition().y + 10);
+    pause_button.setPosition(SCREEN_WIDTH - 55, 10);
 
     // view
     default_view = window->getView();
@@ -55,7 +55,7 @@ void GameState::handle_input()
             window->close();
         }
 
-        if (input->is_sprite_clicked(this->pause_button, sf::Mouse::Left, *window))
+        if (input.is_sprite_clicked(this->pause_button, sf::Mouse::Left, *window))
         {
             // PAUSE
             add_state<PauseState>(false);

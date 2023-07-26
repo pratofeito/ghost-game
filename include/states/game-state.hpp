@@ -12,6 +12,7 @@
 #include <cmath>
 #include <prato-engine/generic-state.hpp>
 #include "states/pause-state.hpp"
+#include "gui.hpp"
 #include "definitions.hpp"
 
 
@@ -23,6 +24,8 @@
 class GameState : public pte::GenericState
 {
 private:
+    InputManager input;
+
     sf::Sprite pause_button;
 
     // input stack

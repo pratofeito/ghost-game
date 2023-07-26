@@ -11,14 +11,28 @@
 
 #include <prato-engine/generic-state.hpp>
 #include "states/game-state.hpp"
+#include "config-handler.hpp"
+#include "gui.hpp"
 #include "definitions.hpp"
+
+#define CLICK_DELAY 0.5
 
 class MainMenuState : public pte::GenericState
 {
 private:
-    sf::Sprite play_button;
-    sf::Sprite quit_button;
+    Config config_defs;
+
+    Button *play_button;
+    Button *credits_button;
+    Button *exit_button;
+
+    Checkbox *checkbox_1x;
+    Checkbox *checkbox_2x;
+
+    sf::Text label_checkbox;
     sf::Text title;
+
+    float time_since_last_click;
 
 public:
     using GenericState::GenericState;

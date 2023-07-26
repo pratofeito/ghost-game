@@ -40,9 +40,9 @@ private:
     // movement
     bool moving;
     float moving_elapsed_time;
-    sf::Vector2i pos_start;
-    sf::Vector2i pos_end;
-    sf::Vector2i center;
+    sf::Vector2f pos_start;
+    sf::Vector2f pos_end;
+    sf::Vector2f center;
 
     
     // map
@@ -64,7 +64,7 @@ public:
     
     // movement methods
     void move_adjacent_tile(int x, int y);
-    sf::Vector2i update_movement(float delta_time);
+    sf::Vector2f update_movement(float delta_time);
 };
 
 #endif

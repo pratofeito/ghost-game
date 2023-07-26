@@ -31,9 +31,9 @@
 #define TILE_H 32.0f
 #define NO_TILES 2
 
-#define PLAYER_SIZE_X 30
-#define PLAYER_SIZE_Y 20
-#define SPEED 0.5
+#define PLAYER_SIZE_X 20
+#define PLAYER_SIZE_Y 30
+#define SPEED 0.1f
 
 // pause menu
 #define PAUSE_BACKGROUND_FILEPATH "resources/pause_bg.png"

@@ -29,12 +29,10 @@ void GameState::init()
     moving_elapsed_time = 0;
 
     // movement
-    center.x = (player_pos.x * PLAYER_SIZE_X) + (PLAYER_SIZE_X / 2);
-    center.y = (player_pos.y * PLAYER_SIZE_Y) + (PLAYER_SIZE_Y / 2);
+    center = tile_position(player_pos.x, player_pos.y);
 
     // start player movement position
-    pos_end.x = player_pos.x * PLAYER_SIZE_X;
-    pos_end.y = player_pos.y * PLAYER_SIZE_Y;
+    pos_end = tile_position(player_pos.x, player_pos.y);
 
 
 }
@@ -92,7 +90,7 @@ void GameState::handle_input()
 
 void GameState::update(float delta_time)
 {
-    sf::Vector2i center_update = update_movement(delta_time);
+    sf::Vector2f center_update = update_movement(delta_time);
 
     player.setPosition(center_update.x - (PLAYER_SIZE_X / 2), center_update.y - (PLAYER_SIZE_Y / 2));
     view.setCenter(center_update.x, center_update.y);
@@ -131,8 +129,7 @@ void GameState::move_adjacent_tile(int x, int y)
 {
     if (!moving)
     {
-        sf::Vector2i pos_after_move = sf::Vector2i(center.x + (x * PLAYER_SIZE_X), center.y + (y * PLAYER_SIZE_Y));
-
+		sf::Vector2f pos_after_move = center + tile_position(-x, y);
         moving = true;
         this->pos_start = center;
         this->pos_end = pos_after_move;
@@ -140,14 +137,14 @@ void GameState::move_adjacent_tile(int x, int y)
     }
 }
 
-sf::Vector2i GameState::update_movement(float delta_time)
+sf::Vector2f GameState::update_movement(float delta_time)
 {
     if (!moving)
     {
         return center;
     }
 
-    sf::Vector2i transition_pos = center;
+    sf::Vector2f transition_pos = center;
     moving_elapsed_time += delta_time;
 
     transition_pos.x += (moving_elapsed_time * (pos_end.x - pos_start.x)) / SPEED;

@@ -59,7 +59,7 @@ public:
     void draw(float delta_time);
     
     // tiling methods
-    void read_csv();
+    void read_csv(char const*, int*);
     sf::Vector2f tile_position(int i, int j);
     
     // movement methods

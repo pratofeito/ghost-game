@@ -2,7 +2,7 @@
  * @file game-state.hpp
  * @date 2023-01-06
  * 
- * @brief Example game state. Runs a bouncing ball demo.
+ * @brief main game state
  * 
  */
 
@@ -16,11 +16,7 @@
 #include "definitions.hpp"
 
 
-#define TILE_SIZE 10
-#define WIDTH SCREEN_WIDTH / TILE_SIZE
-#define HEIGHT SCREEN_HEIGHT / TILE_SIZE
-#define SPEED 0.1
-
+	
 class GameState : public pte::GenericState
 {
 private:
@@ -38,15 +34,10 @@ private:
 
     // player
     sf::RectangleShape player;
-    sf::Vector2i player_pos;
-    sf::Vector2i new_player_pos;
 
     // movement
     bool moving;
     float moving_elapsed_time;
-    sf::Vector2i pos_start;
-    sf::Vector2i pos_end;
-    sf::Vector2i center;
 
     
     // map

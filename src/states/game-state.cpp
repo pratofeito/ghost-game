@@ -21,20 +21,26 @@ void GameState::init()
     view = sf::View(sf::FloatRect(200, 200, 320, 240)); // posso usar o .reset(). também o setCenter e setSize
 
     // init player
-    player.setSize(sf::Vector2f(TILE_SIZE, TILE_SIZE));
+    player.setSize(sf::Vector2f(PLAYER_SIZE_X, PLAYER_SIZE_Y));
     player.setFillColor(sf::Color::White);
     player_pos.x = 10;
     player_pos.y = 10;
     moving = false;
     moving_elapsed_time = 0;
+    
+    for(int i=0;i<6;i++){
+    	dot[i].setSize(sf::Vector2f(2.0f, 2.0f));
+    	dot[i].setFillColor(sf::Color(i*50, i*50, 0));
+	}
 
     // movement
-    center.x = (player_pos.x * TILE_SIZE) + (TILE_SIZE / 2);
-    center.y = (player_pos.y * TILE_SIZE) + (TILE_SIZE / 2);
+    center.x = (player_pos.x * PLAYER_SIZE_X) + (PLAYER_SIZE_X / 2);
+    center.y = (player_pos.y * PLAYER_SIZE_Y) + (PLAYER_SIZE_Y / 2);
 
     // start player movement position
-    pos_end.x = player_pos.x * TILE_SIZE;
-    pos_end.y = player_pos.y * TILE_SIZE;
+    pos_end.x = player_pos.x * PLAYER_SIZE_X;
+    pos_end.y = player_pos.y * PLAYER_SIZE_Y;
+
 
 }
 
@@ -93,7 +99,7 @@ void GameState::update(float delta_time)
 {
     sf::Vector2i center_update = update_movement(delta_time);
 
-    player.setPosition(center_update.x - (TILE_SIZE / 2), center_update.y - (TILE_SIZE / 2));
+    player.setPosition(center_update.x - (PLAYER_SIZE_X / 2), center_update.y - (PLAYER_SIZE_Y / 2));
     view.setCenter(center_update.x, center_update.y);
 }
 
@@ -109,14 +115,14 @@ void GameState::draw(float delta_time)
 		for(int j=0;j<line;j++){
 			int type = map[i*line+j];
 			if(type==-1) continue;
-			tiles[type].setPosition(tile_position(i, j));
+			tiles[type].setPosition(tile_position(i-column/2, j-column/2));
 			window->draw(tiles[type]);
 		}
 	}
 
     // player
     window->draw(player);
-
+    
     // default view
     window->setView(default_view);
 
@@ -130,11 +136,8 @@ void GameState::move_adjacent_tile(int x, int y)
 {
     if (!moving)
     {
-        sf::Vector2i pos_after_move = sf::Vector2i(center.x + (x * TILE_SIZE), center.y + (y * TILE_SIZE));
-
+        sf::Vector2i pos_after_move = sf::Vector2i(center.x + (x * PLAYER_SIZE_X), center.y + (y * PLAYER_SIZE_Y));
         moving = true;
-        this->pos_start = center;
-        this->pos_end = pos_after_move;
         moving_elapsed_time = 0;
     }
 }
@@ -146,11 +149,7 @@ sf::Vector2i GameState::update_movement(float delta_time)
         return center;
     }
 
-    sf::Vector2i transition_pos = center;
     moving_elapsed_time += delta_time;
-
-    transition_pos.x += (moving_elapsed_time * (pos_end.x - pos_start.x)) / SPEED;
-    transition_pos.y += (moving_elapsed_time * (pos_end.y - pos_start.y)) / SPEED;
 
     if (moving_elapsed_time >= SPEED)
     {
@@ -258,6 +257,7 @@ void GameState::read_csv(){
 	}
 	
 	for(int i=0;i<line*column;i++){
+		map[i]--;
 		if(map[i]>=NO_TILES || map[i]<-1){
 			std::printf("invalid tile %d\n", map[i*line+column]);
 			std::exit(1);

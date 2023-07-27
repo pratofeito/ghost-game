@@ -7,18 +7,20 @@ void GameState::init()
 
     assets->load_texture("pause_button", PAUSE_BUTTON);
     pause_button.setTexture(assets->get_texture("pause_button"));
-    pause_button.setPosition(window->getSize().x - pause_button.getLocalBounds().width - 10, pause_button.getPosition().y + 10);
+    pause_button.setPosition(SCREEN_WIDTH - 55, 10);
 
-	assets->load_texture("tiles", TILES_PATH);
-	for(int i=0;i<NO_TILES;i++){
-		tiles[i].setTexture(assets->get_texture("tiles"));
-		tiles[i].setTextureRect(sf::IntRect(55*i, 0, 55, 32)); // Assume que os tiles estao dispostos horizontalmente na textura
-	}
-//	std::printf("abobrinha\n");
+    // set texture for each tile
+    assets->load_texture("tiles", TILES_PATH);
+    for (int i = 0; i < NO_TILES; i++)
+    {
+        tiles[i].setTexture(assets->get_texture("tiles"));
+        tiles[i].setTextureRect(sf::IntRect(55 * i, 0, 55, 32)); // Assume que os tiles estao dispostos horizontalmente na textura
+    }
 
-    // view
+    // map view definition
     default_view = window->getView();
     view = sf::View(sf::FloatRect(200, 200, 320, 240)); // posso usar o .reset(). também o setCenter e setSize
+    time_interval = 1;
 
     // init player
     player.setSize(sf::Vector2f(PLAYER_SIZE_X, PLAYER_SIZE_Y));
@@ -33,8 +35,6 @@ void GameState::init()
 
     // start player movement position
     pos_end = tile_position(player_pos.x, player_pos.y);
-
-
 }
 
 void GameState::handle_input()
@@ -48,27 +48,32 @@ void GameState::handle_input()
             window->close();
         }
 
-        if (input->is_sprite_clicked(this->pause_button, sf::Mouse::Left, *window))
+        if (input.is_sprite_clicked(this->pause_button, sf::Mouse::Left, *window))
         {
             // PAUSE
             add_state<PauseState>(false);
         }
 
         // zoom
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Equal))
+        if (time_interval >= INTERVAL)
         {
-            view.zoom(0.5f);
-        }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Dash))
-        {
-            view.zoom(2);
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Equal))
+            {
+                view.zoom(0.85f);
+                time_interval = 0;
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Dash))
+            {
+                view.zoom(1.15f);
+                time_interval = 0;
+            }
         }
     }
 
     // new input system using stack
     int last_key_pressed = update_control();
 
-    // what to do
+    // keys actions
     if (last_key_pressed == sf::Keyboard::Left)
     {
         move_adjacent_tile(-1, 0);
@@ -85,7 +90,6 @@ void GameState::handle_input()
     {
         move_adjacent_tile(0, 1);
     }
-
 }
 
 void GameState::update(float delta_time)
@@ -94,6 +98,8 @@ void GameState::update(float delta_time)
 
     player.setPosition(center_update.x - (PLAYER_SIZE_X / 2), center_update.y - (PLAYER_SIZE_Y / 2));
     view.setCenter(center_update.x, center_update.y);
+
+    time_interval += delta_time;
 }
 
 void GameState::draw(float delta_time)
@@ -103,19 +109,22 @@ void GameState::draw(float delta_time)
     // view
     window->setView(view);
 
-	// tiles
-	for(int i=0;i<column;i++){
-		for(int j=0;j<line;j++){
-			int type = map[i*line+j];
-			if(type==-1) continue;
-			tiles[type].setPosition(tile_position(i-column/2, j-column/2));
-			window->draw(tiles[type]);
-		}
-	}
+    // tiles
+    for (int i = 0; i < column; i++)
+    {
+        for (int j = 0; j < line; j++)
+        {
+            int type = map[i * line + j];
+            if (type == -1)
+                continue;
+            tiles[type].setPosition(tile_position(i - column / 2, j - column / 2));
+            window->draw(tiles[type]);
+        }
+    }
 
     // player
     window->draw(player);
-    
+
     // default view
     window->setView(default_view);
 
@@ -129,7 +138,7 @@ void GameState::move_adjacent_tile(int x, int y)
 {
     if (!moving)
     {
-		sf::Vector2f pos_after_move = center + tile_position(-x, y);
+        sf::Vector2f pos_after_move = center + tile_position(-x, y);
         moving = true;
         this->pos_start = center;
         this->pos_end = pos_after_move;
@@ -226,7 +235,6 @@ int GameState::update_control()
 
 void GameState::read_csv(char const* path, int* map_buf){
 
-//	std::printf("abobora madura\n");
 	std::FILE* f;
 	if(!(f = std::fopen(path, "r"))){
 		std::printf("error opening file %s\n", path);
@@ -263,11 +271,10 @@ void GameState::read_csv(char const* path, int* map_buf){
 	}
 }
 
-sf::Vector2f GameState::tile_position(int i, int j){
-	float jj = (float) j;
-	float ii = (float) i;
-	sf::Vector2f v(TILE_W/2*jj-TILE_W/2*ii,TILE_H/2*jj+TILE_H/2*ii);
-	return v;
+sf::Vector2f GameState::tile_position(int i, int j)
+{
+    float jj = (float)j;
+    float ii = (float)i;
+    sf::Vector2f v(TILE_W / 2 * jj - TILE_W / 2 * ii, TILE_H / 2 * jj + TILE_H / 2 * ii);
+    return v;
 }
-
-

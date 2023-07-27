@@ -2,8 +2,11 @@
 
 void PauseState::init()
 {
+	// load config
+    config_defs.load("data/config.txt");
+
 	// setup title
-	assets->load_font("default_font", DEFAULT_FONT_PATH);
+	assets->load_font("default_font", config_defs.get("DEFAULT_FONT_PATH"));
 	this->title.setFont(assets->get_font("default_font"));
 	this->title.setString("PAUSE MENU");
 	this->title.setCharacterSize(55);
@@ -32,13 +35,13 @@ void PauseState::handle_input()
 			window->close();
 		}
 
-		if (input->is_sprite_clicked(this->resume_button, sf::Mouse::Left, *window))
+		if (input.is_sprite_clicked(this->resume_button, sf::Mouse::Left, *window))
 		{
 			// Resume Game By Popping Of The Current State (Pause State)
 			remove_state();
 		}
 
-		if (input->is_sprite_clicked(this->home_button, sf::Mouse::Left, *window))
+		if (input.is_sprite_clicked(this->home_button, sf::Mouse::Left, *window))
 		{
 			// Remove The Pause State Off The Stack
 			remove_state();

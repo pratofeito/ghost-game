@@ -9,12 +9,11 @@
 #define DEFINITIONS_HPP
 
 // window
-#define SCREEN_WIDTH 800
-#define SCREEN_HEIGHT 600
+#define SCREEN_WIDTH 640
+#define SCREEN_HEIGHT 480
 
 // splash screen
 #define SPLASH_STATE_SHOW_TIME 1
-#define SPLASH_SCENE_BACKGROUND_FILEPATH "resources/prato-logo.png"
 
 // main menu
 #define MAIN_MENU_BACKGROUND_FILEPATH "resources/main-menu.png"
@@ -33,14 +32,14 @@
 
 #define PLAYER_SIZE_X 20
 #define PLAYER_SIZE_Y 30
-#define SPEED 0.1f
+#define SPEED 0.5f
 
 // pause menu
 #define PAUSE_BACKGROUND_FILEPATH "resources/pause_bg.png"
 #define PAUSE_MENU_RESUME_BUTTON "resources/pause-menu/resume_btn.png"
 #define PAUSE_MENU_HOME_BUTTON "resources/pause-menu/home_btn.png"
 
-// defaults
-#define DEFAULT_FONT_PATH "resources/fonts/VT323.ttf"
+#define DEFAULT_FONT "resources/fonts/oswald.ttf"
+#define HANDWRITING_FONT "resources/fonts/covered_by_your_grace.ttf"
 
 #endif

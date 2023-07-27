@@ -43,11 +43,8 @@ jobs:
     - name: Upload Artifact
       uses: actions/upload-artifact@v3
       with:
-        name: yuca-game-${{ matrix.platform.os }}
+        name: ghost-game-${{ matrix.platform.os }}
         path: | 
-          build/game
-          build/game.exe
-          build/resources/
-          build/data/
+          build/
         if-no-files-found: error
         

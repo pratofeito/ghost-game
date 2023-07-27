@@ -1,0 +1,53 @@
+name: Project Build
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: ${{ matrix.platform.name }} ${{ matrix.config.name }}
+    runs-on: ${{ matrix.platform.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+        - { name: Linux GCC,      os: ubuntu-latest }
+        - { name: Windows VS2022, os: windows-2022 }
+
+        config:
+        - { name: Static, flags: -DBUILD_SHARED_LIBS=FALSE }
+
+    steps:
+    - name: Install Linux Dependencies
+      if: runner.os == 'Linux'
+      run: sudo apt-get update && sudo apt-get install libxrandr-dev libxcursor-dev libudev-dev libopenal-dev libflac-dev libvorbis-dev libgl1-mesa-dev libegl1-mesa-dev libxinerama-dev libxi-dev
+
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Configure
+      shell: bash
+      run: cmake -S . -B build -DCMAKE_INSTALL_PREFIX=install ${{matrix.platform.flags}} ${{matrix.config.flags}}
+
+    - name: Build
+      shell: bash
+      run: cmake --build build --config Release
+
+    - name: Install
+      shell: bash
+      run: cmake --install build --config Release && mv resources/ build/ && find build/Release -maxdepth 1 -type f -exec sh -c 'test -n "$1" && mv "$@" build/' _ {} + || true
+        
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: yuca-game-${{ matrix.platform.os }}
+        path: | 
+          build/game
+          build/game.exe
+          build/resources/
+          build/data/
+        if-no-files-found: error
+        

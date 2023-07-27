@@ -38,13 +38,16 @@ jobs:
 
     - name: Install
       shell: bash
-      run: cmake --install build --config Release && mv resources/ build/ && find build/Release -maxdepth 1 -type f -exec sh -c 'test -n "$1" && mv "$@" build/' _ {} + || true
+      run: cmake --install build --config Release && mv resources/ build/ && mv data/ build/ && find build/Release -maxdepth 1 -type f -exec sh -c 'test -n "$1" && mv "$@" build/' _ {} + || true
         
     - name: Upload Artifact
       uses: actions/upload-artifact@v3
       with:
         name: ghost-game-${{ matrix.platform.os }}
         path: | 
-          build/
+          build/application
+          build/application.exe
+          build/resources/
+          build/data/
         if-no-files-found: error
         

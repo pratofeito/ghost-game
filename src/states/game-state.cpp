@@ -1,5 +1,6 @@
 #include "states/game-state.hpp"
 
+
 void GameState::init()
 {
     window->setFramerateLimit(60);
@@ -8,10 +9,11 @@ void GameState::init()
     assets->load_texture("pause_button", PAUSE_BUTTON);
     pause_button.setTexture(assets->get_texture("pause_button"));
     pause_button.setPosition(SCREEN_WIDTH - 55, 10);
-
+	
     // set texture for each tile
-    read_csv();
+    read_csv(MAP_PATH);
     assets->load_texture("tiles", TILES_PATH);
+
     for (int i = 0; i < NO_TILES; i++)
     {
         tiles[i].setTexture(assets->get_texture("tiles"));
@@ -27,6 +29,7 @@ void GameState::init()
     dialog_box = new DialogBox(window);
 
     // init player
+
     player.hitbox.setSize(sf::Vector2f(PLAYER_SIZE_X, PLAYER_SIZE_Y));
     player.hitbox.setFillColor(sf::Color::White);
     player.grid_position.x = 5;
@@ -47,6 +50,17 @@ void GameState::init()
     init_walls();
 
     // init npc1
+    npc1.dialogue.init("resources/dialogues/npc1", "npc1");
+    
+    // dialogue debug
+    std::cout << npc1.get_sentence() << "\n";
+    std::cout << npc1.get_answer(0) << "\n";
+    std::cout << npc1.get_answer(1) << "\n";
+    std::cout << npc1.get_answer(2) << "\n";
+    npc1.set_answer(0);
+    std::cout << npc1.get_sentence() << "\n";
+    npc1.reset_dialogue();
+    
     npc1.hitbox.setSize(sf::Vector2f(PLAYER_SIZE_X, PLAYER_SIZE_Y));
     npc1.hitbox.setFillColor(sf::Color::Blue);
     npc1.grid_position.x = 7;
@@ -200,7 +214,7 @@ void GameState::draw(float delta_time)
 
     // view
     window->setView(view);
-
+	
     // tiles
     for (int i = 0; i < column; i++)
     {
@@ -347,20 +361,14 @@ int GameState::update_control()
         return 0;
 }
 
-// -------------------- map -------------------
+void GameState::read_csv(char const* path){
 
-void GameState::read_csv()
-{
-    // :p
-    //	std::printf("abobora madura\n");
-
-    std::FILE *f;
-    if (!(f = std::fopen(MAP_PATH, "r")))
-    {
-        std::printf("error opening file " MAP_PATH "\n");
-        std::exit(1);
-    }
-
+	std::FILE* f;
+	if(!(f = std::fopen(path, "r"))){
+		std::printf("error opening file %s\n", path);
+		std::exit(1);
+	}
+	
     int count = 0;
     if (std::fscanf(f, "%d", &map[count++]) != 1)
     {

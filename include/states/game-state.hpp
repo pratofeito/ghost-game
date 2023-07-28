@@ -16,6 +16,7 @@
 #include "states/pause-state.hpp"
 #include "gui.hpp"
 #include "definitions.hpp"
+#include "dialogue.hpp"
 
 #include "game-objects/game-object.hpp"
 #include "game-objects/wall.hpp"
@@ -32,6 +33,7 @@ private:
     InputManager input;
 
     sf::Sprite pause_button;
+    Config config_defs;
 
     // input stack
     std::vector<int> key_stack;
@@ -43,6 +45,7 @@ private:
     sf::View default_view;
     sf::View view;
     float time_interval;
+
 
     // entities
     Player player;
@@ -60,9 +63,16 @@ private:
 
     // map
     int map[10000];
+    int coll[10000];
     int line = 0, column = 0;
     sf::Sprite tiles[NO_TILES];
-
+    
+    // debug
+#ifdef DEBUG
+    sf::Text coord[50][50];
+    char coord_s[200];
+#endif
+    
     // game objects
     std::vector<std::vector<GameObject *>> game_objects;
 
@@ -75,8 +85,9 @@ public:
     void draw(float delta_time);
 
     // tiling methods
-    void read_csv();
+    void read_csv(char const*);
     sf::Vector2f tile_position(int i, int j);
+    int tile_id(sf::Vector2i tile);
 
     // movement methods
     void move_adjacent_tile(int x, int y);

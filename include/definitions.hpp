@@ -24,14 +24,14 @@
 // game
 #define GAME_BACKGROUND_FILEPATH "resources/splash.png"
 #define PAUSE_BUTTON "resources/pause_btn.png"
-#define MAP_PATH "resources/maps/big.csv"
+#define MAP_PATH "resources/maps/map.csv"
 #define TILES_PATH "resources/maps/isometric_tileset.png"
 #define TILE_W 55.0f
 #define TILE_H 32.0f
 #define NO_TILES 2
 
-#define PLAYER_SIZE_X 20
-#define PLAYER_SIZE_Y 30
+#define PLAYER_SIZE_X 55
+#define PLAYER_SIZE_Y 32
 #define SPEED 0.5f
 
 // pause menu

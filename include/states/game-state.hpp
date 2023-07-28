@@ -11,12 +11,18 @@
 
 #include <cstdio>
 #include <cmath>
+#include <fstream>
+#include <sstream>
 #include <prato-engine/generic-state.hpp>
 #include "states/pause-state.hpp"
 #include "gui.hpp"
 #include "definitions.hpp"
 
-#define INTERVAL 0.1
+#include "game-objects/game-object.hpp"
+#include "game-objects/wall.hpp"
+
+#define INTERVAL 0.01
+#define SIZE 20
 
 class GameState : public pte::GenericState
 {
@@ -53,6 +59,13 @@ private:
     int line = 0, column = 0;
     sf::Sprite tiles[NO_TILES];
 
+    // game objects
+    // std::vector<std::vector<GameObject *>> game_objects(5)(5);
+
+    std::vector<std::vector<GameObject *>> game_objects;
+
+    // std::vector<std::vector<int>> fog(SIZE, std::vector<int>(SIZE));
+
 public:
     using GenericState::GenericState;
 
@@ -68,6 +81,9 @@ public:
     // movement methods
     void move_adjacent_tile(int x, int y);
     sf::Vector2f update_movement(float delta_time);
+
+    // game objects
+    void init_walls();
 };
 
 #endif

@@ -2,14 +2,15 @@
 
 void GameState::init()
 {
-    read_csv();
     window->setFramerateLimit(60);
 
+    // pause button
     assets->load_texture("pause_button", PAUSE_BUTTON);
     pause_button.setTexture(assets->get_texture("pause_button"));
     pause_button.setPosition(SCREEN_WIDTH - 55, 10);
 
     // set texture for each tile
+    read_csv();
     assets->load_texture("tiles", TILES_PATH);
     for (int i = 0; i < NO_TILES; i++)
     {
@@ -17,7 +18,7 @@ void GameState::init()
         tiles[i].setTextureRect(sf::IntRect(55 * i, 0, 55, 32)); // Assume que os tiles estao dispostos horizontalmente na textura
     }
 
-    // map view definition
+    // map view
     default_view = window->getView();
     view = sf::View(sf::FloatRect(200, 200, 320, 240)); // posso usar o .reset(). também o setCenter e setSize
     time_interval = 1;
@@ -25,8 +26,8 @@ void GameState::init()
     // init player
     player.setSize(sf::Vector2f(PLAYER_SIZE_X, PLAYER_SIZE_Y));
     player.setFillColor(sf::Color::White);
-    player_pos.x = 10;
-    player_pos.y = 10;
+    player_pos.x = 0;
+    player_pos.y = 0;
     moving = false;
     moving_elapsed_time = 0;
 
@@ -35,6 +36,27 @@ void GameState::init()
 
     // start player movement position
     pos_end = tile_position(player_pos.x, player_pos.y);
+
+    // init game objects
+    game_objects.assign(20, std::vector<GameObject *>(20, nullptr));
+    std::cout << game_objects.size() << " " << game_objects[2].size() << std::endl;
+    init_walls();
+
+    for (int i = 0; i < game_objects.size(); i++)
+    {
+        for (int j = 0; j < game_objects[i].size(); j++)
+        {
+            if (game_objects[i][j] == nullptr)
+            {
+                std::cout << "0 ";
+            }
+            else
+            {
+                std::cout << "1 ";
+            }
+        }
+        std::cout << std::endl;
+    }
 }
 
 void GameState::handle_input()
@@ -96,8 +118,8 @@ void GameState::update(float delta_time)
 {
     sf::Vector2f center_update = update_movement(delta_time);
 
-    player.setPosition(center_update.x - (PLAYER_SIZE_X / 2), center_update.y - (PLAYER_SIZE_Y / 2));
-    view.setCenter(center_update.x, center_update.y);
+    player.setPosition(center_update.x, center_update.y);
+    view.setCenter(center_update.x  + (PLAYER_SIZE_X / 2), center_update.y + (PLAYER_SIZE_Y / 2));
 
     time_interval += delta_time;
 }
@@ -117,7 +139,7 @@ void GameState::draw(float delta_time)
             int type = map[i * line + j];
             if (type == -1)
                 continue;
-            tiles[type].setPosition(tile_position(i - column / 2, j - column / 2));
+            tiles[type].setPosition(tile_position(i, j));
             window->draw(tiles[type]);
         }
     }
@@ -132,17 +154,22 @@ void GameState::draw(float delta_time)
     window->display();
 }
 
-// ------------------- custom -------------------
+// ------------------ movement -----------------
 
 void GameState::move_adjacent_tile(int x, int y)
 {
     if (!moving)
     {
-        sf::Vector2f pos_after_move = center + tile_position(-x, y);
+        sf::Vector2f pos_after_move = center + tile_position(y, x);
         moving = true;
         this->pos_start = center;
         this->pos_end = pos_after_move;
         moving_elapsed_time = 0;
+
+        player_pos.x += x;
+        player_pos.y += y;
+
+        std::cout << player_pos.x << " " << player_pos.y << std::endl;
     }
 }
 
@@ -233,7 +260,7 @@ int GameState::update_control()
         return 0;
 }
 
-// ------------------- map -------------------
+// -------------------- map -------------------
 
 void GameState::read_csv()
 {
@@ -276,7 +303,7 @@ void GameState::read_csv()
 
     for (int i = 0; i < line * column; i++)
     {
-        map[i]--;
+        // map[i]--;
         if (map[i] >= NO_TILES || map[i] < -1)
         {
             std::printf("invalid tile %d\n", map[i * line + column]);
@@ -291,4 +318,35 @@ sf::Vector2f GameState::tile_position(int i, int j)
     float ii = (float)i;
     sf::Vector2f v(TILE_W / 2 * jj - TILE_W / 2 * ii, TILE_H / 2 * jj + TILE_H / 2 * ii);
     return v;
+}
+
+// --------------- game objects ---------------
+
+void GameState::init_walls()
+{
+    std::fstream file;
+    file.open(MAP_PATH);
+
+    int row = 0, column = 0;
+    string line;
+
+    while (getline(file, line))
+    {
+        for (int i = 0; i < line.size(); i++)
+        {
+            if (line[i] == '1')
+            {
+                // game_objects[row, column] = dynamic_cast<GameObject*>(new Wall());
+                game_objects[row][column] = new Wall();
+            }
+
+            if (line[i] != ',')
+            {
+                column++;
+            }
+        }
+
+        column = 0;
+        row++;
+    }
 }

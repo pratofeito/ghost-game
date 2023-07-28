@@ -1,16 +1,37 @@
 #include "states/game-state.hpp"
 
+
 void GameState::init()
 {
-	read_csv(MAP_PATH, map);
+	config_defs.load("data/config.txt");
+	read_map(config_defs.get("MAP_PATH").c_str());
+	read_coll(config_defs.get("COLLISIONS_PATH").c_str());
+	
+	dialogue.read_file();
+	
+	
     window->setFramerateLimit(60);
 
     assets->load_texture("pause_button", PAUSE_BUTTON);
     pause_button.setTexture(assets->get_texture("pause_button"));
     pause_button.setPosition(SCREEN_WIDTH - 55, 10);
-
+	assets->load_font("default_font", config_defs.get("DEFAULT_FONT_PATH"));
+	
+#ifdef DEBUG
+	for(int i=0;i<50;i++){
+		for(int j=0;j<50;j++){
+			coord[i][j].setFont(assets->get_font("default_font"));
+			coord[i][j].setCharacterSize(8);
+			std::sprintf(coord_s, "%d %d", i, j);
+			coord[i][j].setString(sf::String(coord_s));
+			coord[i][j].setPosition(tile_position(i, j)+sf::Vector2f(TILE_W/3.0f, TILE_H/3.0f));
+		}
+	}
+#endif		
+	
+	
     // set texture for each tile
-    assets->load_texture("tiles", TILES_PATH);
+    assets->load_texture("tiles", config_defs.get("TILES_PATH"));
     for (int i = 0; i < NO_TILES; i++)
     {
         tiles[i].setTexture(assets->get_texture("tiles"));
@@ -25,16 +46,17 @@ void GameState::init()
     // init player
     player.setSize(sf::Vector2f(PLAYER_SIZE_X, PLAYER_SIZE_Y));
     player.setFillColor(sf::Color::White);
-    player_pos.x = 10;
-    player_pos.y = 10;
+    player_tile.x = 10;
+    player_tile.y = 10;
     moving = false;
     moving_elapsed_time = 0;
 
     // movement
-    center = tile_position(player_pos.x, player_pos.y);
+    center = tile_position(player_tile.x, player_tile.y);
 
     // start player movement position
-    pos_end = tile_position(player_pos.x, player_pos.y);
+    pos_start = tile_position(player_tile.x, player_tile.y);
+    pos_end = tile_position(player_tile.x, player_tile.y);
 }
 
 void GameState::handle_input()
@@ -108,7 +130,7 @@ void GameState::draw(float delta_time)
 
     // view
     window->setView(view);
-
+	
     // tiles
     for (int i = 0; i < column; i++)
     {
@@ -117,8 +139,13 @@ void GameState::draw(float delta_time)
             int type = map[i * line + j];
             if (type == -1)
                 continue;
-            tiles[type].setPosition(tile_position(i - column / 2, j - column / 2));
+            tiles[type].setPosition(tile_position(i, j));
             window->draw(tiles[type]);
+#ifdef DEBUG
+			if((i<50)&&(j<50)){
+				window->draw(coord[i][j]);
+			}
+#endif
         }
     }
 
@@ -138,6 +165,8 @@ void GameState::move_adjacent_tile(int x, int y)
 {
     if (!moving)
     {
+		player_tile += sf::Vector2i(-x, y);
+		std::printf("%d %d\n", player_tile.x, player_tile.y);
         sf::Vector2f pos_after_move = center + tile_position(-x, y);
         moving = true;
         this->pos_start = center;
@@ -233,7 +262,7 @@ int GameState::update_control()
         return 0;
 }
 
-void GameState::read_csv(char const* path, int* map_buf){
+void GameState::read_map(char const* path){
 
 	std::FILE* f;
 	if(!(f = std::fopen(path, "r"))){
@@ -242,19 +271,19 @@ void GameState::read_csv(char const* path, int* map_buf){
 	}
 	
 	int count=0;
-	if(std::fscanf(f, "%d", &map_buf[count++])!=1){
+	if(std::fscanf(f, "%d", &map[count++])!=1){
 		std::printf("bad map input\n");
 		std::exit(1);
 	}
-	while(std::fscanf(f, ",%d", &map_buf[count])==1){
+	while(std::fscanf(f, ",%d", &map[count])==1){
 		count++;
 	}
 	line = count;
 	column++;
-	while(std::fscanf(f, "%d", &map_buf[count])==1){
+	while(std::fscanf(f, "%d", &map[count])==1){
 		count++;
 		for(int i=0;i<line-1;i++){
-			if(std::fscanf(f, ",%d", &map_buf[count++])!=1){
+			if(std::fscanf(f, ",%d", &map[count++])!=1){
 				std::printf("bad map input\n");
 				std::exit(1);
 			}
@@ -264,9 +293,31 @@ void GameState::read_csv(char const* path, int* map_buf){
 	
 	for(int i=0;i<line*column;i++){
 		map[i]--;
-		if(map[i]>=NO_TILES || map_buf[i]<-1){
-			std::printf("invalid tile %d\n", map_buf[i*line+column]);
+		if(map[i]>=NO_TILES || map[i]<-1){
+			std::printf("invalid tile %d\n", map[i*line+column]);
 			std::exit(1);
+		}
+	}
+}
+
+void GameState::read_coll(char const* path){
+
+	std::FILE* f;
+	if(!(f = std::fopen(path, "r"))){
+		std::printf("error opening file %s\n", path);
+		std::exit(1);
+	}
+	
+	for(int i=0;i<column;i++){
+		if(std::fscanf(f, "%d", &coll[i*column])!=1){
+			std::printf("bad collisions input\n");
+			std::exit(1);
+		}
+		for(int j=1;j<line;j++){
+			if(std::fscanf(f, ",%d", &coll[i*column+j])!=1){
+				std::printf("bad collisions input\n");
+				std::exit(1);
+			}
 		}
 	}
 }
@@ -278,3 +329,8 @@ sf::Vector2f GameState::tile_position(int i, int j)
     sf::Vector2f v(TILE_W / 2 * jj - TILE_W / 2 * ii, TILE_H / 2 * jj + TILE_H / 2 * ii);
     return v;
 }
+
+int GameState::tile_id(sf::Vector2i tile){
+	return tile.x*line+tile.y;
+}
+

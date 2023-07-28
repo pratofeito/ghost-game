@@ -15,6 +15,7 @@
 #include "states/pause-state.hpp"
 #include "gui.hpp"
 #include "definitions.hpp"
+#include "dialogue.hpp"
 
 #define INTERVAL 0.1
 
@@ -24,6 +25,7 @@ private:
     InputManager input;
 
     sf::Sprite pause_button;
+    Config config_defs;
 
     // input stack
     std::vector<int> key_stack;
@@ -38,8 +40,8 @@ private:
 
     // player
     sf::RectangleShape player;
-    sf::Vector2i player_pos;
-    sf::Vector2i new_player_pos;
+    sf::Vector2i player_tile;
+    sf::Vector2i new_player_tile;
 
     // movement
     bool moving;
@@ -50,8 +52,18 @@ private:
 
     // map
     int map[10000];
+    int coll[10000];
     int line = 0, column = 0;
     sf::Sprite tiles[NO_TILES];
+    
+    // debug
+#ifdef DEBUG
+    sf::Text coord[50][50];
+    char coord_s[200];
+#endif
+    
+    // dialogue
+    Dialogue dialogue;
 
 public:
     using GenericState::GenericState;
@@ -62,8 +74,10 @@ public:
     void draw(float delta_time);
 
     // tiling methods
-    void read_csv(char const*, int*);
+    void read_coll(char const*);
+    void read_map(char const*);
     sf::Vector2f tile_position(int i, int j);
+    int tile_id(sf::Vector2i tile);
 
     // movement methods
     void move_adjacent_tile(int x, int y);

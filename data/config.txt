@@ -1,3 +1,7 @@
 SCREEN_SCALE 2
 SPLASH_SCENE_BACKGROUND_FILEPATH resources/prato-logo.png
 DEFAULT_FONT_PATH resources/fonts/VT323.ttf
+DIALOGUES_PATH resources/dialogues/dialogues
+MAP_PATH resources/maps/big.csv
+TILES_PATH resources/maps/isometric_tileset.png
+COLLISIONS_PATH resources/maps/collisions.csv

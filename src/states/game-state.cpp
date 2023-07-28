@@ -3,60 +3,68 @@
 
 void GameState::init()
 {
-	config_defs.load("data/config.txt");
-	read_map(config_defs.get("MAP_PATH").c_str());
-	read_coll(config_defs.get("COLLISIONS_PATH").c_str());
-	
-	dialogue.read_file();
-	
-	
     window->setFramerateLimit(60);
 
+    // pause button
     assets->load_texture("pause_button", PAUSE_BUTTON);
     pause_button.setTexture(assets->get_texture("pause_button"));
     pause_button.setPosition(SCREEN_WIDTH - 55, 10);
-	assets->load_font("default_font", config_defs.get("DEFAULT_FONT_PATH"));
-	
-#ifdef DEBUG
-	for(int i=0;i<50;i++){
-		for(int j=0;j<50;j++){
-			coord[i][j].setFont(assets->get_font("default_font"));
-			coord[i][j].setCharacterSize(8);
-			std::sprintf(coord_s, "%d %d", i, j);
-			coord[i][j].setString(sf::String(coord_s));
-			coord[i][j].setPosition(tile_position(i, j)+sf::Vector2f(TILE_W/3.0f, TILE_H/3.0f));
-		}
-	}
-#endif		
-	
 	
     // set texture for each tile
-    assets->load_texture("tiles", config_defs.get("TILES_PATH"));
+    read_csv(MAP_PATH);
+    assets->load_texture("tiles", TILES_PATH);
+
     for (int i = 0; i < NO_TILES; i++)
     {
         tiles[i].setTexture(assets->get_texture("tiles"));
         tiles[i].setTextureRect(sf::IntRect(55 * i, 0, 55, 32)); // Assume que os tiles estao dispostos horizontalmente na textura
     }
 
-    // map view definition
+    // map view
     default_view = window->getView();
     view = sf::View(sf::FloatRect(200, 200, 320, 240)); // posso usar o .reset(). também o setCenter e setSize
     time_interval = 1;
 
     // init player
-    player.setSize(sf::Vector2f(PLAYER_SIZE_X, PLAYER_SIZE_Y));
-    player.setFillColor(sf::Color::White);
-    player_tile.x = 10;
-    player_tile.y = 10;
-    moving = false;
-    moving_elapsed_time = 0;
+
+    player.hitbox.setSize(sf::Vector2f(PLAYER_SIZE_X, PLAYER_SIZE_Y));
+    player.hitbox.setFillColor(sf::Color::White);
+    player.grid_position.x = 5;
+    player.grid_position.y = 3;
 
     // movement
-    center = tile_position(player_tile.x, player_tile.y);
+    center = tile_position(player.grid_position.x, player.grid_position.y);
+    pos_end = tile_position(player.grid_position.x, player.grid_position.y); // player movement position
+    moving = false;
 
-    // start player movement position
-    pos_start = tile_position(player_tile.x, player_tile.y);
-    pos_end = tile_position(player_tile.x, player_tile.y);
+    // init player movement position
+    std::cout << center.x << " " << center.y << std::endl;
+    std::cout << pos_end.x << " " << pos_end.y << std::endl;
+
+    // init game objects (mudar o tamanho máximo da string)
+    game_objects.assign(20, std::vector<GameObject *>(20, nullptr));
+    std::cout << game_objects.size() << " " << game_objects[2].size() << std::endl;
+    init_walls();
+
+    // init npc1
+    npc1.dialogue.init("resources/dialogues/npc1", "npc1");
+    
+    // dialogue debug
+    std::cout << npc1.get_sentence() << "\n";
+    std::cout << npc1.get_answer(0) << "\n";
+    std::cout << npc1.get_answer(1) << "\n";
+    std::cout << npc1.get_answer(2) << "\n";
+    npc1.set_answer(0);
+    std::cout << npc1.get_sentence() << "\n";
+    npc1.reset_dialogue();
+    
+    npc1.hitbox.setSize(sf::Vector2f(PLAYER_SIZE_X, PLAYER_SIZE_Y));
+    npc1.hitbox.setFillColor(sf::Color::Blue);
+    npc1.grid_position.x = 7;
+    npc1.grid_position.y = 3;
+    game_objects[npc1.grid_position.x][npc1.grid_position.y] = &npc1;
+
+    std::cout << npc1.hitbox.getOrigin().x << " " << npc1.hitbox.getOrigin().y << std::endl;
 }
 
 void GameState::handle_input()
@@ -74,6 +82,46 @@ void GameState::handle_input()
         {
             // PAUSE
             add_state<PauseState>(false);
+        }
+
+        // interaction
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+        {
+            int x, y;
+            switch (player.facing)
+            {
+            case FRONT:
+                x = 0;
+                y = -1;
+                break;
+            case BACK:
+                x = 0;
+                y = 1;
+                break;
+            case LEFT:
+                x = -1;
+                y = 0;
+                break;
+            case RIGHT:
+                x = 1;
+                y = 0;
+                break;
+            default:
+                x = 0;
+                y = 0;
+            }
+
+            if (game_objects[player.grid_position.x + x][player.grid_position.y + y] != nullptr && !moving)
+            {
+                if (game_objects[player.grid_position.x + x][player.grid_position.y + y]->type == "npc")
+                {
+                    std::cout << "interação com o npc!!!" << std::endl;
+                    
+                    // converts GameObject pointer into Npc pointer.
+                    Npc *n = static_cast<Npc *>(game_objects[player.grid_position.x + x][player.grid_position.y + y]);
+                    std::cout << n->get_sentence() << std::endl;
+                }
+            }
         }
 
         // zoom
@@ -98,19 +146,39 @@ void GameState::handle_input()
     // keys actions
     if (last_key_pressed == sf::Keyboard::Left)
     {
-        move_adjacent_tile(-1, 0);
+        if (player.facing == LEFT)
+        {
+            move_adjacent_tile(-1, 0);
+        }
+
+        player.facing = LEFT;
     }
     else if (last_key_pressed == sf::Keyboard::Right)
     {
-        move_adjacent_tile(1, 0);
+        if (player.facing == RIGHT)
+        {
+            move_adjacent_tile(1, 0);
+        }
+
+        player.facing = RIGHT;
     }
     else if (last_key_pressed == sf::Keyboard::Up)
     {
-        move_adjacent_tile(0, -1);
+        if (player.facing == FRONT)
+        {
+            move_adjacent_tile(0, -1);
+        }
+
+        player.facing = FRONT;
     }
     else if (last_key_pressed == sf::Keyboard::Down)
     {
-        move_adjacent_tile(0, 1);
+        if (player.facing == BACK)
+        {
+            move_adjacent_tile(0, 1);
+        }
+
+        player.facing = BACK;
     }
 }
 
@@ -118,8 +186,12 @@ void GameState::update(float delta_time)
 {
     sf::Vector2f center_update = update_movement(delta_time);
 
-    player.setPosition(center_update.x - (PLAYER_SIZE_X / 2), center_update.y - (PLAYER_SIZE_Y / 2));
-    view.setCenter(center_update.x, center_update.y);
+    // player
+    player.hitbox.setPosition(center_update.x, center_update.y);
+    view.setCenter(center_update.x + (PLAYER_SIZE_X / 2), center_update.y + (PLAYER_SIZE_Y / 2));
+
+    // npc
+    npc1.hitbox.setPosition(tile_position(npc1.grid_position.x, npc1.grid_position.y));
 
     time_interval += delta_time;
 }
@@ -139,18 +211,14 @@ void GameState::draw(float delta_time)
             int type = map[i * line + j];
             if (type == -1)
                 continue;
-            tiles[type].setPosition(tile_position(i, j));
+            tiles[type].setPosition(tile_position(j, i));
             window->draw(tiles[type]);
-#ifdef DEBUG
-			if((i<50)&&(j<50)){
-				window->draw(coord[i][j]);
-			}
-#endif
         }
     }
 
-    // player
-    window->draw(player);
+    // entities
+    window->draw(player.hitbox);
+    window->draw(npc1.hitbox);
 
     // default view
     window->setView(default_view);
@@ -159,19 +227,34 @@ void GameState::draw(float delta_time)
     window->display();
 }
 
-// ------------------- custom -------------------
+// ------------------ movement -----------------
 
 void GameState::move_adjacent_tile(int x, int y)
 {
     if (!moving)
     {
-		player_tile += sf::Vector2i(-x, y);
-		std::printf("%d %d\n", player_tile.x, player_tile.y);
-        sf::Vector2f pos_after_move = center + tile_position(-x, y);
+        // check if the movement is blocked
+        if (game_objects[player.grid_position.x + x][player.grid_position.y + y] != nullptr)
+        {
+            if (game_objects[player.grid_position.x + x][player.grid_position.y + y]->collidable)
+            {
+                return;
+            }
+        }
+
+        // continue movement
+        sf::Vector2f pos_after_move = center + tile_position(x, y);
         moving = true;
         this->pos_start = center;
         this->pos_end = pos_after_move;
         moving_elapsed_time = 0;
+
+        player.grid_position.x += x;
+        player.grid_position.y += y;
+
+        // debug
+        std::cout << "facing: " << player.facing << std::endl;
+        std::cout << player.grid_position.x << " " << player.grid_position.y << std::endl;
     }
 }
 
@@ -197,6 +280,7 @@ sf::Vector2f GameState::update_movement(float delta_time)
 
     return transition_pos;
 }
+
 // ------------------- stack -------------------
 
 void GameState::push_stack(int input)
@@ -262,7 +346,7 @@ int GameState::update_control()
         return 0;
 }
 
-void GameState::read_map(char const* path){
+void GameState::read_csv(char const* path){
 
 	std::FILE* f;
 	if(!(f = std::fopen(path, "r"))){
@@ -270,59 +354,45 @@ void GameState::read_map(char const* path){
 		std::exit(1);
 	}
 	
-	int count=0;
-	if(std::fscanf(f, "%d", &map[count++])!=1){
-		std::printf("bad map input\n");
-		std::exit(1);
-	}
-	while(std::fscanf(f, ",%d", &map[count])==1){
-		count++;
-	}
-	line = count;
-	column++;
-	while(std::fscanf(f, "%d", &map[count])==1){
-		count++;
-		for(int i=0;i<line-1;i++){
-			if(std::fscanf(f, ",%d", &map[count++])!=1){
-				std::printf("bad map input\n");
-				std::exit(1);
-			}
-		}
-		column++;
-	}
-	
-	for(int i=0;i<line*column;i++){
-		map[i]--;
-		if(map[i]>=NO_TILES || map[i]<-1){
-			std::printf("invalid tile %d\n", map[i*line+column]);
-			std::exit(1);
-		}
-	}
+    int count = 0;
+    if (std::fscanf(f, "%d", &map[count++]) != 1)
+    {
+        std::printf("bad map input\n");
+        std::exit(1);
+    }
+    while (std::fscanf(f, ",%d", &map[count]) == 1)
+    {
+        count++;
+    }
+    line = count;
+    column++;
+
+    while (std::fscanf(f, "%d", &map[count]) == 1)
+    {
+        count++;
+        for (int i = 0; i < line - 1; i++)
+        {
+            if (std::fscanf(f, ",%d", &map[count++]) != 1)
+            {
+                std::printf("bad map input\n");
+                std::exit(1);
+            }
+        }
+        column++;
+    }
+
+    for (int i = 0; i < line * column; i++)
+    {
+        // map[i]--;
+        if (map[i] >= NO_TILES || map[i] < -1)
+        {
+            std::printf("invalid tile %d\n", map[i * line + column]);
+            std::exit(1);
+        }
+    }
 }
 
-void GameState::read_coll(char const* path){
-
-	std::FILE* f;
-	if(!(f = std::fopen(path, "r"))){
-		std::printf("error opening file %s\n", path);
-		std::exit(1);
-	}
-	
-	for(int i=0;i<column;i++){
-		if(std::fscanf(f, "%d", &coll[i*column])!=1){
-			std::printf("bad collisions input\n");
-			std::exit(1);
-		}
-		for(int j=1;j<line;j++){
-			if(std::fscanf(f, ",%d", &coll[i*column+j])!=1){
-				std::printf("bad collisions input\n");
-				std::exit(1);
-			}
-		}
-	}
-}
-
-sf::Vector2f GameState::tile_position(int i, int j)
+sf::Vector2f GameState::tile_position(int j, int i)
 {
     float jj = (float)j;
     float ii = (float)i;
@@ -330,7 +400,33 @@ sf::Vector2f GameState::tile_position(int i, int j)
     return v;
 }
 
-int GameState::tile_id(sf::Vector2i tile){
-	return tile.x*line+tile.y;
-}
+// --------------- game objects ---------------
 
+void GameState::init_walls()
+{
+    std::fstream file;
+    file.open(MAP_PATH);
+
+    int row = 0, column = 0;
+    string line;
+
+    while (getline(file, line))
+    {
+        for (int i = 0; i < line.size(); i++)
+        {
+            if (line[i] == '1')
+            {
+                // game_objects[row, column] = dynamic_cast<GameObject*>(new Wall());
+                game_objects[column][row] = new Wall();
+            }
+
+            if (line[i] != ',')
+            {
+                column++;
+            }
+        }
+
+        column = 0;
+        row++;
+    }
+}

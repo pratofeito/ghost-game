@@ -1,4 +1,8 @@
 
+#ifndef DIALOGUE_HPP
+#define DIALOGUE_HPP
+
+#include <iostream>
 #include <cstdio>
 #include <cstdlib>
 #include <vector>
@@ -6,29 +10,40 @@
 #include <map>
 
 
-
-typedef struct{
-	
+typedef struct
+{	
 	int id;
-	std::vector<char>* content;
+	std::string* content;
 	int no_answers;
 	int answer[3];
 } dia_line;
 
 
-class Dialogue{
-
+class Dialogue
+{
+private:
 public:
+	char const* my_name;
+	
+	void init(char const* path, char const* name = "unnamed");
+	bool initialized = false;
+	
+	int curr_id = 1;
+	std::string* get_current();
+	std::string* get_answer(int);
+	int get_number_of_answers();
+	void set_answer(int);
+	
 	FILE* f;
 	std::map<int, dia_line*> lines;
-	std::vector<char> contents[100000]; // assumindo que vamos ter menos de 100000 linhas lol
-	int line_id[100000]; 
+	std::string contents[10000];
+	int line_id[10000]; 
 	int cur_line;
 
-	void read_file();
 	void error_w_line(char const* s);
+	void error(char const* s);
 	int read_line(dia_line* d_line);
-	void print_myself();
-	int seen[100000];
 };
 
+
+#endif

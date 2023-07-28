@@ -11,13 +11,20 @@
 
 #include <cstdio>
 #include <cmath>
+#include <fstream>
 #include <prato-engine/generic-state.hpp>
 #include "states/pause-state.hpp"
 #include "gui.hpp"
 #include "definitions.hpp"
 #include "dialogue.hpp"
 
-#define INTERVAL 0.1
+#include "game-objects/game-object.hpp"
+#include "game-objects/wall.hpp"
+#include "game-objects/player.hpp"
+#include "game-objects/npc.hpp"
+
+#define INTERVAL 0.01
+#define SIZE 20
 
 class GameState : public pte::GenericState
 {
@@ -38,10 +45,10 @@ private:
     sf::View view;
     float time_interval;
 
-    // player
-    sf::RectangleShape player;
-    sf::Vector2i player_tile;
-    sf::Vector2i new_player_tile;
+
+    // entities
+    Player player;
+    Npc npc1;
 
     // movement
     bool moving;
@@ -62,8 +69,8 @@ private:
     char coord_s[200];
 #endif
     
-    // dialogue
-    Dialogue dialogue;
+    // game objects
+    std::vector<std::vector<GameObject *>> game_objects;
 
 public:
     using GenericState::GenericState;
@@ -74,14 +81,16 @@ public:
     void draw(float delta_time);
 
     // tiling methods
-    void read_coll(char const*);
-    void read_map(char const*);
+    void read_csv(char const*);
     sf::Vector2f tile_position(int i, int j);
     int tile_id(sf::Vector2i tile);
 
     // movement methods
     void move_adjacent_tile(int x, int y);
     sf::Vector2f update_movement(float delta_time);
+
+    // game objects
+    void init_walls();
 };
 
 #endif

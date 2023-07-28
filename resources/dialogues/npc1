@@ -1,0 +1,22 @@
+
+
+1 "Ola, vc está bem?" 2 3 4
+2 "estou bem, e vc?" 5
+5 "estou bem." 12
+12 ""
+
+3 "estou mal :( " 6 9
+6 "pq" 7
+7 "sla" 10
+10 ""
+
+
+4 "sai" 8
+8 "vish vc é um grosso" 9
+9 "sou mesmo" 11
+11 ""
+
+100 " sabnbs " 1
+
+31 "" 32
+32 "" 31

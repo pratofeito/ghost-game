@@ -21,6 +21,7 @@
 #include "game-objects/wall.hpp"
 #include "game-objects/player.hpp"
 #include "game-objects/npc.hpp"
+#include "dialog-box.hpp"
 
 #define INTERVAL 0.01
 #define SIZE 20
@@ -46,6 +47,9 @@ private:
     // entities
     Player player;
     Npc npc1;
+
+    // dialog
+    DialogBox *dialog_box;
 
     // movement
     bool moving;

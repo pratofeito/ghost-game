@@ -23,6 +23,9 @@ void GameState::init()
     view = sf::View(sf::FloatRect(200, 200, 320, 240)); // posso usar o .reset(). também o setCenter e setSize
     time_interval = 1;
 
+    // dialog box
+    dialog_box = new DialogBox(window);
+
     // init player
     player.hitbox.setSize(sf::Vector2f(PLAYER_SIZE_X, PLAYER_SIZE_Y));
     player.hitbox.setFillColor(sf::Color::White);
@@ -70,6 +73,12 @@ void GameState::handle_input()
             add_state<PauseState>(false);
         }
 
+        // dialog interface
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+        {
+            dialog_box->active = !dialog_box->active;
+        }
+
         // interaction
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
         {
@@ -102,7 +111,7 @@ void GameState::handle_input()
                 if (game_objects[player.grid_position.x + x][player.grid_position.y + y]->type == "npc")
                 {
                     std::cout << "interação com o npc!!!" << std::endl;
-                    
+
                     // converts GameObject pointer into Npc pointer.
                     Npc *n = static_cast<Npc *>(game_objects[player.grid_position.x + x][player.grid_position.y + y]);
                     std::cout << n->get_sentence() << std::endl;
@@ -179,6 +188,9 @@ void GameState::update(float delta_time)
     // npc
     npc1.hitbox.setPosition(tile_position(npc1.grid_position.x, npc1.grid_position.y));
 
+    // dialog
+    dialog_box->update(delta_time);
+
     time_interval += delta_time;
 }
 
@@ -210,6 +222,9 @@ void GameState::draw(float delta_time)
     window->setView(default_view);
 
     window->draw(this->pause_button);
+    // dialog box
+    dialog_box->draw();
+    
     window->display();
 }
 

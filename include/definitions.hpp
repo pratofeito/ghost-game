@@ -42,4 +42,10 @@
 #define DEFAULT_FONT "resources/fonts/oswald.ttf"
 #define HANDWRITING_FONT "resources/fonts/covered_by_your_grace.ttf"
 
+// dialog box
+#define TOP_BOX_TEXTURE_PATH "resources/dialog/top-box.png"
+#define OPTION_TEXTURE_PATH "resources/dialog/button.png"
+#define OPTION_HOVER_TEXTURE_PATH "resources/dialog/button-hover.png"
+#define OPTION_PRESSED_TEXTURE_PATH "resources/dialog/button-pressed.png"
+
 #endif

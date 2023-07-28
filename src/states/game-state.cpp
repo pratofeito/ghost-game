@@ -24,39 +24,24 @@ void GameState::init()
     time_interval = 1;
 
     // init player
-    player.setSize(sf::Vector2f(PLAYER_SIZE_X, PLAYER_SIZE_Y));
-    player.setFillColor(sf::Color::White);
-    player_pos.x = 0;
-    player_pos.y = 0;
-    moving = false;
-    moving_elapsed_time = 0;
+    player.hitbox.setSize(sf::Vector2f(PLAYER_SIZE_X, PLAYER_SIZE_Y));
+    player.hitbox.setFillColor(sf::Color::White);
+    player.grid_position.x = 7;
+    player.grid_position.y = 3;
 
     // movement
-    center = tile_position(player_pos.x, player_pos.y);
+    center = tile_position(player.grid_position.x, player.grid_position.y);
+    pos_end = tile_position(player.grid_position.x, player.grid_position.y);    // player movement position
+    moving = false;
 
-    // start player movement position
-    pos_end = tile_position(player_pos.x, player_pos.y);
+    // init player movement position
+    std::cout << center.x << " " << center.y << std::endl;
+    std::cout << pos_end.x << " " << pos_end.y << std::endl;
 
-    // init game objects
+    // init game objects (mudar o tamanho máximo da string)
     game_objects.assign(20, std::vector<GameObject *>(20, nullptr));
     std::cout << game_objects.size() << " " << game_objects[2].size() << std::endl;
     init_walls();
-
-    for (int i = 0; i < game_objects.size(); i++)
-    {
-        for (int j = 0; j < game_objects[i].size(); j++)
-        {
-            if (game_objects[i][j] == nullptr)
-            {
-                std::cout << "0 ";
-            }
-            else
-            {
-                std::cout << "1 ";
-            }
-        }
-        std::cout << std::endl;
-    }
 }
 
 void GameState::handle_input()
@@ -98,19 +83,39 @@ void GameState::handle_input()
     // keys actions
     if (last_key_pressed == sf::Keyboard::Left)
     {
-        move_adjacent_tile(-1, 0);
+        if (player.facing == LEFT)
+        {
+            move_adjacent_tile(-1, 0);
+        }
+
+        player.facing = LEFT;
     }
     else if (last_key_pressed == sf::Keyboard::Right)
     {
-        move_adjacent_tile(1, 0);
+        if (player.facing == RIGHT)
+        {
+            move_adjacent_tile(1, 0);
+        }
+
+        player.facing = RIGHT;
     }
     else if (last_key_pressed == sf::Keyboard::Up)
     {
-        move_adjacent_tile(0, -1);
+        if (player.facing == FRONT)
+        {
+            move_adjacent_tile(0, -1);
+        }
+
+        player.facing = FRONT;
     }
     else if (last_key_pressed == sf::Keyboard::Down)
     {
-        move_adjacent_tile(0, 1);
+        if (player.facing == BACK)
+        {
+            move_adjacent_tile(0, 1);
+        }
+
+        player.facing = BACK;
     }
 }
 
@@ -118,8 +123,8 @@ void GameState::update(float delta_time)
 {
     sf::Vector2f center_update = update_movement(delta_time);
 
-    player.setPosition(center_update.x, center_update.y);
-    view.setCenter(center_update.x  + (PLAYER_SIZE_X / 2), center_update.y + (PLAYER_SIZE_Y / 2));
+    player.hitbox.setPosition(center_update.x, center_update.y);
+    view.setCenter(center_update.x + (PLAYER_SIZE_X / 2), center_update.y + (PLAYER_SIZE_Y / 2));
 
     time_interval += delta_time;
 }
@@ -139,13 +144,13 @@ void GameState::draw(float delta_time)
             int type = map[i * line + j];
             if (type == -1)
                 continue;
-            tiles[type].setPosition(tile_position(i, j));
+            tiles[type].setPosition(tile_position(j, i));
             window->draw(tiles[type]);
         }
     }
 
     // player
-    window->draw(player);
+    window->draw(player.hitbox);
 
     // default view
     window->setView(default_view);
@@ -160,16 +165,28 @@ void GameState::move_adjacent_tile(int x, int y)
 {
     if (!moving)
     {
-        sf::Vector2f pos_after_move = center + tile_position(y, x);
+        // check if the movement is blocked
+        if (game_objects[player.grid_position.x + x][player.grid_position.y + y] != nullptr)
+        {
+            if (game_objects[player.grid_position.x + x][player.grid_position.y + y]->collidable)
+            {
+                return;
+            }
+        }
+
+        // continue movement
+        sf::Vector2f pos_after_move = center + tile_position(x, y);
         moving = true;
         this->pos_start = center;
         this->pos_end = pos_after_move;
         moving_elapsed_time = 0;
 
-        player_pos.x += x;
-        player_pos.y += y;
+        player.grid_position.x += x;
+        player.grid_position.y += y;
 
-        std::cout << player_pos.x << " " << player_pos.y << std::endl;
+        // debug
+        std::cout << "facing: " << player.facing << std::endl;
+        std::cout << player.grid_position.x << " " << player.grid_position.y << std::endl;
     }
 }
 
@@ -195,6 +212,7 @@ sf::Vector2f GameState::update_movement(float delta_time)
 
     return transition_pos;
 }
+
 // ------------------- stack -------------------
 
 void GameState::push_stack(int input)
@@ -312,7 +330,7 @@ void GameState::read_csv()
     }
 }
 
-sf::Vector2f GameState::tile_position(int i, int j)
+sf::Vector2f GameState::tile_position(int j, int i)
 {
     float jj = (float)j;
     float ii = (float)i;
@@ -337,7 +355,7 @@ void GameState::init_walls()
             if (line[i] == '1')
             {
                 // game_objects[row, column] = dynamic_cast<GameObject*>(new Wall());
-                game_objects[row][column] = new Wall();
+                game_objects[column][row] = new Wall();
             }
 
             if (line[i] != ',')

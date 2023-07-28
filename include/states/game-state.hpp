@@ -20,6 +20,7 @@
 #include "game-objects/game-object.hpp"
 #include "game-objects/wall.hpp"
 #include "game-objects/player.hpp"
+#include "game-objects/npc.hpp"
 
 #define INTERVAL 0.01
 #define SIZE 20
@@ -42,11 +43,9 @@ private:
     sf::View view;
     float time_interval;
 
-    // player
-    // sf::RectangleShape player;
-    // sf::Vector2i player_pos;
-
+    // entities
     Player player;
+    Npc npc1;
 
     // movement
     bool moving;

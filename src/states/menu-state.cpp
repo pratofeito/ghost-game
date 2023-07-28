@@ -79,7 +79,7 @@ void MainMenuState::init()
     }
 
     // reset mouse click delay  
-    time_since_last_click = 0;
+    time_since_last_click = CLICK_DELAY;
 }
 
 void MainMenuState::handle_input()
@@ -94,10 +94,10 @@ void MainMenuState::handle_input()
         }
 
         // check button delay
-        if (time_since_last_click < CLICK_DELAY)
-        {
-            break;
-        }
+        // if (time_since_last_click < CLICK_DELAY)
+        // {
+        //     break;
+        // }
 
         if (play_button->is_pressed())
         {

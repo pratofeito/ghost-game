@@ -2,6 +2,7 @@
 #define GAME_OBJECT_HPP
 
 #include <iostream>
+#include <SFML/Graphics.hpp>
 
 class GameObject
 {

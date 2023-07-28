@@ -26,12 +26,12 @@ void GameState::init()
     // init player
     player.hitbox.setSize(sf::Vector2f(PLAYER_SIZE_X, PLAYER_SIZE_Y));
     player.hitbox.setFillColor(sf::Color::White);
-    player.grid_position.x = 7;
+    player.grid_position.x = 5;
     player.grid_position.y = 3;
 
     // movement
     center = tile_position(player.grid_position.x, player.grid_position.y);
-    pos_end = tile_position(player.grid_position.x, player.grid_position.y);    // player movement position
+    pos_end = tile_position(player.grid_position.x, player.grid_position.y); // player movement position
     moving = false;
 
     // init player movement position
@@ -42,6 +42,15 @@ void GameState::init()
     game_objects.assign(20, std::vector<GameObject *>(20, nullptr));
     std::cout << game_objects.size() << " " << game_objects[2].size() << std::endl;
     init_walls();
+
+    // init npc1
+    npc1.hitbox.setSize(sf::Vector2f(PLAYER_SIZE_X, PLAYER_SIZE_Y));
+    npc1.hitbox.setFillColor(sf::Color::Blue);
+    npc1.grid_position.x = 7;
+    npc1.grid_position.y = 3;
+    game_objects[npc1.grid_position.x][npc1.grid_position.y] = &npc1;
+
+    std::cout << npc1.hitbox.getOrigin().x << " " << npc1.hitbox.getOrigin().y << std::endl;
 }
 
 void GameState::handle_input()
@@ -59,6 +68,46 @@ void GameState::handle_input()
         {
             // PAUSE
             add_state<PauseState>(false);
+        }
+
+        // interaction
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+        {
+            int x, y;
+            switch (player.facing)
+            {
+            case FRONT:
+                x = 0;
+                y = -1;
+                break;
+            case BACK:
+                x = 0;
+                y = 1;
+                break;
+            case LEFT:
+                x = -1;
+                y = 0;
+                break;
+            case RIGHT:
+                x = 1;
+                y = 0;
+                break;
+            default:
+                x = 0;
+                y = 0;
+            }
+
+            if (game_objects[player.grid_position.x + x][player.grid_position.y + y] != nullptr && !moving)
+            {
+                if (game_objects[player.grid_position.x + x][player.grid_position.y + y]->type == "npc")
+                {
+                    std::cout << "interação com o npc!!!" << std::endl;
+                    
+                    // converts GameObject pointer into Npc pointer.
+                    Npc *n = static_cast<Npc *>(game_objects[player.grid_position.x + x][player.grid_position.y + y]);
+                    std::cout << n->get_sentence() << std::endl;
+                }
+            }
         }
 
         // zoom
@@ -123,8 +172,12 @@ void GameState::update(float delta_time)
 {
     sf::Vector2f center_update = update_movement(delta_time);
 
+    // player
     player.hitbox.setPosition(center_update.x, center_update.y);
     view.setCenter(center_update.x + (PLAYER_SIZE_X / 2), center_update.y + (PLAYER_SIZE_Y / 2));
+
+    // npc
+    npc1.hitbox.setPosition(tile_position(npc1.grid_position.x, npc1.grid_position.y));
 
     time_interval += delta_time;
 }
@@ -149,8 +202,9 @@ void GameState::draw(float delta_time)
         }
     }
 
-    // player
+    // entities
     window->draw(player.hitbox);
+    window->draw(npc1.hitbox);
 
     // default view
     window->setView(default_view);

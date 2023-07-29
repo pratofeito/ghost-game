@@ -46,7 +46,6 @@ private:
     sf::View view;
     float time_interval;
 
-
     // entities
     Player player;
     Npc npc1;
@@ -66,13 +65,13 @@ private:
     int coll[10000];
     int line = 0, column = 0;
     sf::Sprite tiles[NO_TILES];
-    
+
     // debug
 #ifdef DEBUG
     sf::Text coord[50][50];
     char coord_s[200];
 #endif
-    
+
     // game objects
     std::vector<std::vector<GameObject *>> game_objects;
 
@@ -85,13 +84,19 @@ public:
     void draw(float delta_time);
 
     // tiling methods
-    void read_csv(char const*);
+    void read_csv(char const *);
     sf::Vector2f tile_position(int i, int j);
     int tile_id(sf::Vector2i tile);
 
     // movement methods
     void move_adjacent_tile(int x, int y);
     sf::Vector2f update_movement(float delta_time);
+
+    // interaction
+    Npc *npc_talking;
+    float click_interval_answer = 0;
+    void interact(Npc &npc);
+    void update_interaction(float delta_time);
 
     // game objects
     void init_walls();

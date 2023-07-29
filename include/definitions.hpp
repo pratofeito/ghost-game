@@ -44,6 +44,7 @@
 
 // dialog box
 #define TOP_BOX_TEXTURE_PATH "resources/dialog/top-box.png"
+#define BACKGROUNG_TEXTURE_PATH "resources/dialog/background.png"
 #define OPTION_TEXTURE_PATH "resources/dialog/button.png"
 #define OPTION_HOVER_TEXTURE_PATH "resources/dialog/button-hover.png"
 #define OPTION_PRESSED_TEXTURE_PATH "resources/dialog/button-pressed.png"

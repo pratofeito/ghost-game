@@ -32,6 +32,8 @@ private:
     sf::Texture hover_texture;
     sf::Texture pressed_texture;
 
+    bool visible;
+
     sf::Text text;
     std::string text_string;
     sf::Font *font;
@@ -46,6 +48,7 @@ public:
     void set_texture(std::string texture_path);
     void set_hover_texture(std::string texture_path);
     void set_pressed_texture(std::string texture_path);
+    void set_visible(bool visible);
 
     void update();
     void draw();

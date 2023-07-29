@@ -9,23 +9,17 @@ class DialogBox
 {
 private:
     sf::RenderWindow *window;
-    // sf::Texture top_box_texture;
-    // sf::Texture option_texture;
-    // sf::Texture option_hover_texture;
-    // sf::Texture option_pressed_texture;
 
-    // sf::Sprite top_box;
-    // sf::Sprite option_1;
-    // sf::Sprite option_2;
-    // sf::Sprite option_3;
-
+public:
+    bool active;
     Button *top_box;
     Button *option_1;
     Button *option_2;
     Button *option_3;
+    Button *exit;
 
-public:
-    bool active;
+    sf::Texture background_texture;
+    sf::Sprite background;
 
     DialogBox(sf::RenderWindow *window);
 

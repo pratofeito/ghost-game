@@ -1,4 +1,4 @@
-SCREEN_SCALE 2
+SCREEN_SCALE 1
 SPLASH_SCENE_BACKGROUND_FILEPATH resources/prato-logo.png
 DEFAULT_FONT_PATH resources/fonts/VT323.ttf
 DIALOGUES_PATH resources/dialogues/dialogues

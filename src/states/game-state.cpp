@@ -1,6 +1,5 @@
 #include "states/game-state.hpp"
 
-
 void GameState::init()
 {
     window->setFramerateLimit(60);
@@ -9,7 +8,7 @@ void GameState::init()
     assets->load_texture("pause_button", PAUSE_BUTTON);
     pause_button.setTexture(assets->get_texture("pause_button"));
     pause_button.setPosition(SCREEN_WIDTH - 55, 10);
-	
+
     // set texture for each tile
     read_csv(MAP_PATH);
     assets->load_texture("tiles", TILES_PATH);
@@ -29,7 +28,6 @@ void GameState::init()
     dialog_box = new DialogBox(window);
 
     // init player
-
     player.hitbox.setSize(sf::Vector2f(PLAYER_SIZE_X, PLAYER_SIZE_Y));
     player.hitbox.setFillColor(sf::Color::White);
     player.grid_position.x = 5;
@@ -40,34 +38,31 @@ void GameState::init()
     pos_end = tile_position(player.grid_position.x, player.grid_position.y); // player movement position
     moving = false;
 
-    // init player movement position
-    std::cout << center.x << " " << center.y << std::endl;
-    std::cout << pos_end.x << " " << pos_end.y << std::endl;
-
     // init game objects (mudar o tamanho máximo da string)
     game_objects.assign(20, std::vector<GameObject *>(20, nullptr));
-    std::cout << game_objects.size() << " " << game_objects[2].size() << std::endl;
+    // std::cout << game_objects.size() << " " << game_objects[2].size() << std::endl;
     init_walls();
 
     // init npc1
     npc1.dialogue.init("resources/dialogues/npc1", "npc1");
-    
-    // dialogue debug
-    std::cout << npc1.get_sentence() << "\n";
-    std::cout << npc1.get_answer(0) << "\n";
-    std::cout << npc1.get_answer(1) << "\n";
-    std::cout << npc1.get_answer(2) << "\n";
-    npc1.set_answer(0);
-    std::cout << npc1.get_sentence() << "\n";
-    npc1.reset_dialogue();
-    
     npc1.hitbox.setSize(sf::Vector2f(PLAYER_SIZE_X, PLAYER_SIZE_Y));
     npc1.hitbox.setFillColor(sf::Color::Blue);
     npc1.grid_position.x = 7;
     npc1.grid_position.y = 3;
     game_objects[npc1.grid_position.x][npc1.grid_position.y] = &npc1;
 
-    std::cout << npc1.hitbox.getOrigin().x << " " << npc1.hitbox.getOrigin().y << std::endl;
+    // dialogue debug
+    std::cout << npc1.get_sentence() << "\n";
+    std::cout << npc1.get_answer(0) << "\n";
+    std::cout << npc1.get_answer(1) << "\n";
+    std::cout << npc1.get_answer(2) << "\n";
+    npc1.set_answer(1);
+    std::cout << npc1.get_sentence() << "\n";
+    std::cout << npc1.get_sentence() << "\n";
+    std::cout << "n answ " << npc1.get_number_of_answers() << std::endl;
+    npc1.reset_dialogue();
+
+    // std::cout << npc1.hitbox.getOrigin().x << " " << npc1.hitbox.getOrigin().y << std::endl;
 }
 
 void GameState::handle_input()
@@ -124,11 +119,9 @@ void GameState::handle_input()
             {
                 if (game_objects[player.grid_position.x + x][player.grid_position.y + y]->type == "npc")
                 {
-                    std::cout << "interação com o npc!!!" << std::endl;
-
                     // converts GameObject pointer into Npc pointer.
                     Npc *n = static_cast<Npc *>(game_objects[player.grid_position.x + x][player.grid_position.y + y]);
-                    std::cout << n->get_sentence() << std::endl;
+                    interact(*n);
                 }
             }
         }
@@ -151,6 +144,12 @@ void GameState::handle_input()
 
     // new input system using stack
     int last_key_pressed = update_control();
+
+    // dont move if on dialog!
+    if (dialog_box->active)
+    {
+        return;
+    }
 
     // keys actions
     if (last_key_pressed == sf::Keyboard::Left)
@@ -203,6 +202,7 @@ void GameState::update(float delta_time)
     npc1.hitbox.setPosition(tile_position(npc1.grid_position.x, npc1.grid_position.y));
 
     // dialog
+    update_interaction(delta_time);
     dialog_box->update(delta_time);
 
     time_interval += delta_time;
@@ -214,7 +214,7 @@ void GameState::draw(float delta_time)
 
     // view
     window->setView(view);
-	
+
     // tiles
     for (int i = 0; i < column; i++)
     {
@@ -238,7 +238,7 @@ void GameState::draw(float delta_time)
     window->draw(this->pause_button);
     // dialog box
     dialog_box->draw();
-    
+
     window->display();
 }
 
@@ -268,8 +268,8 @@ void GameState::move_adjacent_tile(int x, int y)
         player.grid_position.y += y;
 
         // debug
-        std::cout << "facing: " << player.facing << std::endl;
-        std::cout << player.grid_position.x << " " << player.grid_position.y << std::endl;
+        // std::cout << "facing: " << player.facing << std::endl;
+        // std::cout << player.grid_position.x << " " << player.grid_position.y << std::endl;
     }
 }
 
@@ -361,14 +361,16 @@ int GameState::update_control()
         return 0;
 }
 
-void GameState::read_csv(char const* path){
+void GameState::read_csv(char const *path)
+{
 
-	std::FILE* f;
-	if(!(f = std::fopen(path, "r"))){
-		std::printf("error opening file %s\n", path);
-		std::exit(1);
-	}
-	
+    std::FILE *f;
+    if (!(f = std::fopen(path, "r")))
+    {
+        std::printf("error opening file %s\n", path);
+        std::exit(1);
+    }
+
     int count = 0;
     if (std::fscanf(f, "%d", &map[count++]) != 1)
     {
@@ -444,4 +446,73 @@ void GameState::init_walls()
         column = 0;
         row++;
     }
+}
+
+// --------------- interaction ---------------
+
+void GameState::interact(Npc &npc)
+{
+    dialog_box->active = true;
+    npc_talking = &npc;
+}
+
+void GameState::update_interaction(float delta_time)
+{
+    click_interval_answer += delta_time;
+
+    if (!dialog_box->active)
+    {
+        return;
+    }
+
+    dialog_box->top_box->set_text(npc_talking->get_sentence(), assets->get_font("d_font"), 16, sf::Text::Regular, sf::Color::White);
+
+    dialog_box->exit->set_visible(false);
+    dialog_box->option_1->set_visible(false);
+    dialog_box->option_2->set_visible(false);
+    dialog_box->option_3->set_visible(false);
+
+    if (npc_talking->get_number_of_answers() == 0)
+    {
+        dialog_box->exit->set_text("* exit *", assets->get_font("d_font"), 16, sf::Text::Regular, sf::Color::White);
+        dialog_box->exit->set_visible(true);
+    }
+
+    if (npc_talking->get_number_of_answers() >= 1)
+    {
+        dialog_box->option_1->set_visible(true);
+        dialog_box->option_1->set_text(npc_talking->get_answer(0), assets->get_font("d_font"), 16, sf::Text::Regular, sf::Color::White);
+    }
+    if (npc_talking->get_number_of_answers() >= 2)
+    {
+        dialog_box->option_2->set_visible(true);
+        dialog_box->option_2->set_text(npc_talking->get_answer(1), assets->get_font("d_font"), 16, sf::Text::Regular, sf::Color::White);
+    }
+    if (npc_talking->get_number_of_answers() >= 3)
+    {
+        dialog_box->option_3->set_visible(true);
+        dialog_box->option_3->set_text(npc_talking->get_answer(2), assets->get_font("d_font"), 16, sf::Text::Regular, sf::Color::White);
+    }
+
+    if (dialog_box->exit->is_pressed() && click_interval_answer >= 1)
+    {
+        dialog_box->active = false;
+    }
+    else if (dialog_box->option_1->is_pressed() && click_interval_answer >= 1)
+    {
+        npc_talking->set_answer(0);
+        click_interval_answer = 0;
+    }
+    else if (dialog_box->option_2->is_pressed() && click_interval_answer >= 1)
+    {
+        npc_talking->set_answer(1);
+        click_interval_answer = 0;
+    }
+    else if (dialog_box->option_3->is_pressed() && click_interval_answer >= 1)
+    {
+        npc_talking->set_answer(2);
+        click_interval_answer = 0;
+    }
+
+    // dialog_box->active = false;
 }

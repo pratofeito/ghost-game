@@ -30,6 +30,7 @@ Button::Button(sf::RenderWindow &window)
     this->window = &window;
     sprite.setPosition(0, 0);
     set_size(100, 100);
+    visible = true;
 }
 
 void Button::set_texture(std::string texture_path)
@@ -114,12 +115,22 @@ void Button::set_text(std::string text_string, sf::Font &font, int character_siz
 
 void Button::draw()
 {
+    if (!visible)
+    {
+        return;
+    }
+
     window->draw(sprite);
     window->draw(text);
 }
 
 bool Button::is_pressed()
 {
+    if (!visible)
+    {
+        return false;
+    }
+
     config_defs.load("data/config.txt");
     screen_scale = stoi(config_defs.get("SCREEN_SCALE"));
 
@@ -131,6 +142,11 @@ bool Button::is_pressed()
     }
 
     return false;
+}
+
+void Button::set_visible(bool visible)
+{
+    this->visible = visible;
 }
 
 // ------------------------------------- checkbox -------------------------------------

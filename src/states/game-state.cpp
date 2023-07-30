@@ -4,6 +4,10 @@ void GameState::init()
 {
     window->setFramerateLimit(60);
 
+	// music
+	audio.load_music("h1", "resources/audio/h1.ogg");
+	audio.fade_in("h1", 15);
+
     // pause button
     assets->load_texture("pause_button", PAUSE_BUTTON);
     pause_button.setTexture(assets->get_texture("pause_button"));
@@ -204,6 +208,9 @@ void GameState::update(float delta_time)
     // dialog
     update_interaction(delta_time);
     dialog_box->update(delta_time);
+    
+    // music
+    audio.update_music(delta_time);
 
     time_interval += delta_time;
 }

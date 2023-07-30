@@ -23,6 +23,7 @@
 #include "game-objects/player.hpp"
 #include "game-objects/npc.hpp"
 #include "dialog-box.hpp"
+#include "audio-control.hpp"
 
 #define INTERVAL 0.01
 #define SIZE 20
@@ -34,6 +35,9 @@ private:
 
     sf::Sprite pause_button;
     Config config_defs;
+    
+    // music
+    AudioControl audio;
 
     // input stack
     std::vector<int> key_stack;

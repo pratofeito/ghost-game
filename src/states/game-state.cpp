@@ -83,12 +83,6 @@ void GameState::handle_input()
             add_state<PauseState>(false);
         }
 
-        // dialog interface
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-        {
-            dialog_box->active = !dialog_box->active;
-        }
-
         // interaction
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
         {

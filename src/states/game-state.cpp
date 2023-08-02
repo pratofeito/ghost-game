@@ -62,7 +62,8 @@ void GameState::init()
     std::cout << "n answ " << npc1.get_number_of_answers() << std::endl;
     npc1.reset_dialogue();
 
-    // std::cout << npc1.hitbox.getOrigin().x << " " << npc1.hitbox.getOrigin().y << std::endl;
+    // dialog interface
+    text_writing = false;
 }
 
 void GameState::handle_input()
@@ -454,6 +455,7 @@ void GameState::interact(Npc &npc)
 {
     dialog_box->active = true;
     npc_talking = &npc;
+    text_writing = true;
 }
 
 void GameState::update_interaction(float delta_time)
@@ -465,13 +467,37 @@ void GameState::update_interaction(float delta_time)
         return;
     }
 
-    dialog_box->top_box->set_text(npc_talking->get_sentence(), assets->get_font("d_font"), 16, sf::Text::Regular, sf::Color::White);
-
     dialog_box->exit->set_visible(false);
     dialog_box->option_1->set_visible(false);
     dialog_box->option_2->set_visible(false);
     dialog_box->option_3->set_visible(false);
 
+    // if (text_writing)
+    // {
+
+    //     std::string phrase = npc_talking->get_sentence().substr(0, phrase_max_string);
+
+    //     if (phrase[phrase_max_string] == '&')
+    //     {
+    //         dialog_box->top_box.
+    //     }
+
+    //     return ;
+    // }
+
+    // get sentence and insert break lines
+    std::string top_box_string = npc_talking->get_sentence();
+
+    size_t start_pos = 0;
+    while ((start_pos = top_box_string.find("\\n", start_pos)) != std::string::npos)
+    {
+        top_box_string.replace(start_pos, 2, "\n");
+        start_pos += 1;
+    }
+    
+    dialog_box->top_box->set_text(top_box_string, assets->get_font("d_font"), 16, sf::Text::Regular, sf::Color::White);
+
+    // check if its time to show exit button
     if (npc_talking->get_number_of_answers() == 0)
     {
         dialog_box->exit->set_text("* exit *", assets->get_font("d_font"), 16, sf::Text::Regular, sf::Color::White);

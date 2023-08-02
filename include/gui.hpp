@@ -34,11 +34,11 @@ private:
 
     bool visible;
 
-    sf::Text text;
     std::string text_string;
     sf::Font *font;
 
 public:
+    sf::Text text;
     Button(sf::RenderWindow &window);
 
     void set_size(int width, int height);

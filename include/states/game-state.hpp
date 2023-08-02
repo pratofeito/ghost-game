@@ -95,6 +95,9 @@ public:
     // interaction
     Npc *npc_talking;
     float click_interval_answer = 0;
+    bool text_writing;
+    int phrase_max_string = 0;
+    // std::string top_box_string;
     void interact(Npc &npc);
     void update_interaction(float delta_time);
 
